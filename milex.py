@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import plotly.express as px
 import argparse
 
@@ -79,6 +78,6 @@ def plot_line(df):
     fig.show()
 
 
-df = process_milex_excel('SIPRI-Milex-data-1948-2023.xlsx')
+df = process_milex_excel('data/SIPRI-Milex-data-1948-2023.xlsx')
 df = clean_df(df)
 plot_line(df)

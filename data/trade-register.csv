@@ -1,0 +1,394 @@
+Transfers of major conventional arms from All countries  to Ukraine  . Deals with deliveries made for the year range '2000' to '2024' 
+A '?' in a column indicates uncertain data. The 'Number delivered' and the 'Year(s) of deliveries' refer only to deliveries in the selected year(s).
+An empty field for 'Number ordered' indicates that data is not yet available.
+SIPRI trend-indicator values (TIVs) are in millions.
+An empty field for 'SIPRI TIV for total order' indicates that data (on the number ordered and/or the TIV per unit) is not available.
+A '0' for 'SIPRI TIV of delivered weapons' indicates that the volume of deliveries is between 0 and 0.5 million SIPRI TIV; and an empty field indicates that no deliveries have been identified.
+Figures may not add up to stated totals due to the conventions of rounding.
+For the method used for the SIPRI TIV and explanations of the conventions; abbreviations and acronyms see <https://www.sipri.org/databases/armstransfers/sources-and-methods>.
+
+Source: SIPRI Arms Transfers Database (c) SIPRI.
+Data generated: 17 Feb 2025 7:10:21 PM
+SIPRI AT Database ID,Supplier,Recipient,Designation,Description,Armament category,Order date,Order date is estimate,Numbers delivered,Numbers delivered is estimate,Delivery year,Delivery year is estimate,Status,SIPRI estimate,TIV deal unit,TIV delivery values,Local production
+65442,Australia,Ukraine,UFH 155mm,towed gun,Artillery,2022,No,6,No,2022,No,Second hand,1,0.4,2.4,No
+65361,Australia,Ukraine,Bushmaster,APC,Armoured vehicles,2022,No,70,Yes,2022,No,Second hand,0.35,0.14,9.8,No
+65361,Australia,Ukraine,Bushmaster,APC,Armoured vehicles,2022,No,50,Yes,2023,No,Second hand,0.35,0.14,7,No
+65535,Australia,Ukraine,Waran,APC,Armoured vehicles,2022,No,28,No,2022,No,Second hand,0.35,0.14,3.92,No
+66850,Belgium,Ukraine,M-113,APC,Armoured vehicles,2022,No,46,No,2022,No,Second hand,0.25,0.1,4.6,No
+66850,Belgium,Ukraine,M-113,APC,Armoured vehicles,2022,No,90,Yes,2023,Yes,Second hand,0.25,0.1,9,No
+66807,Belgium,Ukraine,M-113,APC,Armoured vehicles,2023,No,40,Yes,2023,No,Second hand,0.25,0.1,4,No
+66363,Belgium,Ukraine,Mistral SAM,portable SAM,Missiles,2023,No,25,Yes,2023,No,Second hand,0.09,0.04,0.9,No
+66290,Belgium,Ukraine,AIM-120B AMRAAM,BVRAAM,Missiles,2022,Yes,15,No,2023,No,Second hand,0.4,0.16,2.4,No
+66362,Belgium,Ukraine,MILAN,anti-tank missile,Missiles,2022,Yes,50,Yes,2022,Yes,Second hand,0.01,0,0.2,No
+66361,Belgium,Ukraine,LMV,APV,Armoured vehicles,2023,No,80,No,2023,No,Second hand,0.15,0.06,4.8,No
+66360,Belgium,Ukraine,MO-120-RT 120mm,mortar,Artillery,2022,No,4,No,2022,No,Second hand,0.3,0.12,0.48,No
+37542,Belgium,Ukraine,M-109A1 155mm,self-propelled gun,Artillery,2022,No,28,Yes,2022,No,Second hand,1.1,0.44,12.32,No
+66822,Canada,Ukraine,AIM-7M,BVRAAM,Missiles,2023,No,288,Yes,2023,Yes,Second hand,0.18,0.07,20.74,No
+65425,Canada,Ukraine,Excalibur,guided shell,Missiles,2022,No,50,Yes,2022,No,Second hand,0.04,0.02,0.8,No
+67051,Canada,Ukraine,Gurkha,APV,Armoured vehicles,2022,No,11,Yes,2023,No,New,0.16,0.16,1.76,No
+66034,Canada,Ukraine,Senator,APC/APV,Armoured vehicles,2022,No,100,Yes,2022,No,New,0.14,0.14,14,No
+66034,Canada,Ukraine,Senator,APC/APV,Armoured vehicles,2022,No,700,Yes,2023,No,New,0.14,0.14,98,No
+66823,Canada,Ukraine,Senator,APC/APV,Armoured vehicles,2022,No,8,No,2022,No,New,0.14,0.14,1.12,No
+66823,Canada,Ukraine,Senator,APC/APV,Armoured vehicles,2022,No,200,No,2023,No,New,0.14,0.14,28,No
+66286,Canada,Ukraine,Leopard-2A4,tank,Armoured vehicles,2022,Yes,8,No,2023,No,Second hand,4,1.6,12.8,No
+66570,Canada,Ukraine,AIM-9M,SRAAM,Missiles,2023,No,43,No,2023,No,Second hand,0.12,0.05,2.06,No
+66371,Canada,Ukraine,AIM-120C AMRAAM,BVRAAM,Missiles,2023,No,12,No,2023,No,Second hand,0.6,0.24,2.88,No
+65412,Canada,Ukraine,UFH 155mm,towed gun,Artillery,2022,No,4,No,2022,No,Second hand,1,0.4,1.6,No
+66342,Canada,Ukraine,Buffel ARV,ARV,Armoured vehicles,2023,No,1,No,2023,No,Second hand,2.25,0.9,0.9,No
+59289,Canada,Ukraine,Spartan CAN,APC/APV,Armoured vehicles,2014,No,8,No,2014,No,New,0.16,0.16,1.28,No
+59289,Canada,Ukraine,Spartan CAN,APC/APV,Armoured vehicles,2014,No,31,No,2015,No,New,0.16,0.16,4.96,No
+66149,Canada,Ukraine,Titan,APC,Armoured vehicles,2022,No,10,Yes,2022,No,New,0.13,0.13,1.3,No
+65666,Canada,Ukraine,Piranha LAV-6 APC -,APC,Armoured vehicles,2022,No,39,Yes,2022,No,New,0.37,0.37,14.43,No
+58760,Croatia,Ukraine,RAK-12,towed MRL,Artillery,2022,Yes,10,Yes,2023,No,Second hand,0.07,0.03,0.28,No
+65832,Croatia,Ukraine,M-46 130mm,towed gun,Artillery,2022,No,15,Yes,2022,No,Second hand,0.65,0.26,3.9,No
+66094,Croatia,Ukraine,Mi-17,transport helicopter,Aircraft,2022,No,11,No,2023,No,Second hand,7.25,2.9,31.9,No
+66325,Croatia,Ukraine,Mi-8T,transport helicopter,Aircraft,2022,No,3,No,2023,No,Second hand,6,2.4,7.2,No
+65401,Czechia,Ukraine,RM-70 Vampire 122mm,self-propelled MRL,Artillery,2022,No,20,Yes,2022,No,Second hand,0.95,0.38,7.6,No
+67496,Czechia,Ukraine,Strela-2,portable SAM,Missiles,2022,No,144,Yes,2023,No,Second hand,0.04,0.02,2.3,No
+67496,Czechia,Ukraine,Strela-2,portable SAM,Missiles,2022,No,291,No,2022,No,Second hand,0.04,0.02,4.66,No
+58299,Czechia,Ukraine,vehicle engine 401-600,vehicle engine,Engines,2022,Yes,19,No,2023,No,New,0.08,0.08,1.52,No
+66529,Czechia,Ukraine,RM-70 122mm,self-propelled MRL,Artillery,2023,No,1,No,2023,No,Second hand,0.9,0.36,0.36,No
+65544,Czechia,Ukraine,Mi-24V,combat helicopter,Aircraft,2022,No,4,No,2022,No,Second hand,8.5,3.4,13.6,No
+67495,Czechia,Ukraine,Konkurs,anti-tank missile,Missiles,2022,No,300,Yes,2023,Yes,Second hand,0.02,0.01,2.4,No
+67495,Czechia,Ukraine,Konkurs,anti-tank missile,Missiles,2022,No,345,Yes,2022,Yes,Second hand,0.02,0.01,2.76,No
+38044,Czechia,Ukraine,BM-21 122mm,self-propelled MRL,Artillery,2022,No,12,No,2022,No,Second hand,0.6,0.24,2.88,No
+39573,Czechia,Ukraine,T-72M1,tank,Armoured vehicles,2022,No,20,Yes,2022,No,Second hand but modernized,2.6,1.72,34.32,No
+66536,Czechia,Ukraine,3M9,SAM,Missiles,2023,No,120,Yes,2023,No,Second hand,0.12,0.05,5.76,No
+67537,Czechia,Ukraine,vehicle engine 401-600,vehicle engine,Engines,2022,No,3,Yes,2023,No,New,0.08,0.08,0.24,No
+67537,Czechia,Ukraine,vehicle engine 401-600,vehicle engine,Engines,2022,No,7,Yes,2022,No,New,0.08,0.08,0.56,No
+65402,Czechia,Ukraine,DANA 152mm,self-propelled gun,Artillery,2022,No,13,Yes,2023,No,Second hand but modernized,1,0.66,8.58,No
+65402,Czechia,Ukraine,DANA 152mm,self-propelled gun,Artillery,2022,No,13,Yes,2022,No,Second hand but modernized,1,0.66,8.58,No
+61853,Czechia,Ukraine,2S1 122mm,self-propelled gun,Artillery,2018,No,40,No,2018,No,Second hand,0.9,0.36,14.4,No
+63150,Czechia,Ukraine,2S1 122mm,self-propelled gun,Artillery,2019,No,16,No,2019,No,Second hand,0.9,0.36,5.76,No
+61791,Czechia,Ukraine,BMP-1,IFV,Armoured vehicles,2014,No,50,Yes,2018,No,Second hand but modernized,0.9,0.59,29.7,No
+63472,Czechia,Ukraine,BMP-1,IFV,Armoured vehicles,2019,No,37,No,2020,No,Second hand,0.9,0.36,13.32,No
+66288,Czechia,Ukraine,One 150,UAV,Aircraft,2022,No,6,No,2022,No,New,0.2,0.2,1.2,No
+65916,Czechia,Ukraine,T-72M1,tank,Armoured vehicles,2022,No,1,No,2022,No,Second hand but modernized,2.6,1.72,1.72,No
+66096,Czechia,Ukraine,One 150,UAV,Aircraft,2022,No,7,No,2023,No,New,0.2,0.2,1.4,No
+66166,Czechia,Ukraine,T-55AM-2,tank,Armoured vehicles,2022,No,22,Yes,2022,Yes,Second hand,1.5,0.6,13.2,No
+67031,Czechia,Ukraine,T-72M1,tank,Armoured vehicles,2023,No,15,Yes,2023,Yes,Second hand but modernized,2.6,1.72,25.74,No
+65375,Czechia,Ukraine,T-72M1,tank,Armoured vehicles,2022,No,20,Yes,2022,No,Second hand,2.6,1.04,20.8,No
+65362,Czechia,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,56,Yes,2022,No,Second hand,0.9,0.36,20.16,No
+65320,Czechia,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,45,Yes,2022,No,Second hand,0.9,0.36,16.2,No
+65320,Czechia,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,30,Yes,2023,Yes,Second hand,0.9,0.36,10.8,No
+66535,Czechia,Ukraine,Kvadrat SAMS,SAM system,Air defence systems,2023,No,2,Yes,2023,No,Second hand,17.5,7,14,No
+65455,Denmark,Ukraine,M-113A3,APC,Armoured vehicles,2022,No,54,No,2022,No,Second hand,0.3,0.12,6.48,No
+67059,Denmark,Ukraine,K-6 120mm,mortar,Artillery,2022,No,20,Yes,2022,No,Second hand,0.25,0.1,2,No
+65551,Denmark,Ukraine,Harpoon Block-2,anti-ship missile/SSM,Missiles,2022,No,20,Yes,2022,No,Second hand,1,0.4,8,No
+65542,Denmark,Ukraine,HCDS,coastal defence system,Sensors,2022,No,1,Yes,2022,No,Second hand,10,4,4,No
+67277,Estonia,Ukraine,M-41D 120mm,mortar,Artillery,2022,No,30,No,2022,No,Second hand,0.25,0.1,3,No
+66249,Estonia,Ukraine,D-30 122mm,towed gun,Artillery,2022,Yes,31,Yes,2023,No,Second hand,0.35,0.14,4.34,No
+65264,Estonia,Ukraine,Javelin ATM,anti-tank missile,Missiles,2022,No,50,Yes,2022,No,Second hand,0.03,0.01,0.6,No
+65264,Estonia,Ukraine,Javelin ATM,anti-tank missile,Missiles,2022,No,200,Yes,2023,Yes,Second hand,0.03,0.01,2.4,No
+65733,Estonia,Ukraine,Mamba AV,APC/APV,Armoured vehicles,2022,No,7,No,2022,No,Second hand,0.15,0.06,0.42,No
+65102,Estonia,Ukraine,D-30 122mm,towed gun,Artillery,2021,No,9,Yes,2022,No,Second hand,0.35,0.14,1.26,No
+66453,Estonia,Ukraine,MILAN,anti-tank missile,Missiles,2022,No,50,Yes,2022,Yes,Second hand,0.01,0,0.2,No
+65582,Estonia,Ukraine,FH-70 155mm,towed gun,Artillery,2022,No,8,No,2022,No,Second hand,1,0.4,3.2,No
+65582,Estonia,Ukraine,FH-70 155mm,towed gun,Artillery,2022,No,16,Yes,2023,No,Second hand,1,0.4,6.4,No
+65104,Estonia,Ukraine,Javelin ATM,anti-tank missile,Missiles,2021,No,50,Yes,2022,No,Second hand,0.03,0.01,0.6,No
+66271,Finland,Ukraine,HMBV,AEV,Armoured vehicles,2023,No,3,No,2023,Yes,Second hand,2.5,1,3,No
+66152,Finland,Ukraine,XA-180,APC,Armoured vehicles,2022,No,5,Yes,2022,No,Second hand,0.3,0.12,0.6,No
+65393,France,Ukraine,Mistral SAM,portable SAM,Missiles,2022,No,50,Yes,2022,No,Second hand,0.09,0.04,1.8,No
+65936,France,Ukraine,SAMP/T,ABM/SAM system,Air defence systems,2022,No,1,No,2023,No,Second hand,55,22,22,No
+66205,France,Ukraine,AMX-10RC,armoured car,Armoured vehicles,2022,No,30,No,2023,No,Second hand,1.2,0.48,14.4,No
+66188,France,Ukraine,Ground Master-200,air search radar,Sensors,2023,No,1,Yes,2023,No,New,10,10,10,No
+65317,France,Ukraine,MILAN,anti-tank missile,Missiles,2022,No,704,Yes,2022,No,Second hand,0.01,0,2.82,No
+65900,France,Ukraine,CAESAR 155mm -,self-propelled gun,Artillery,2022,Yes,19,No,2023,No,New,1.07,1.07,20.33,No
+67222,France,Ukraine,MO-120-RT 120mm,mortar,Artillery,2022,No,10,No,2022,No,Second hand,0.3,0.12,1.2,No
+61724,France,Ukraine,H-725 Caracal,transport helicopter,Aircraft,2018,No,1,No,2019,No,Second hand,8,3.2,3.2,No
+61724,France,Ukraine,H-725 Caracal,transport helicopter,Aircraft,2018,No,8,Yes,2022,Yes,Second hand,8,3.2,25.6,No
+61724,France,Ukraine,H-725 Caracal,transport helicopter,Aircraft,2018,No,1,No,2018,No,Second hand,8,3.2,3.2,No
+61724,France,Ukraine,H-725 Caracal,transport helicopter,Aircraft,2018,No,2,No,2021,No,Second hand,8,3.2,6.4,No
+63275,France,Ukraine,FPB-98,patrol craft,Ships,2020,No,8,Yes,2023,Yes,New,6.5,6.5,52,Yes
+67249,France,Ukraine,CAESAR 155mm,self-propelled gun,Artillery,2023,No,12,No,2023,No,Second hand,1.1,0.44,5.28,No
+65392,France,Ukraine,Javelin ATM,anti-tank missile,Missiles,2022,No,50,Yes,2022,No,Second hand,0.03,0.01,0.6,No
+61725,France,Ukraine,AS-350,light helicopter,Aircraft,2018,No,2,Yes,2023,No,New,0.9,0.9,1.8,No
+65421,France,Ukraine,CAESAR 155mm,self-propelled gun,Artillery,2022,No,18,No,2022,No,Second hand,1.1,0.44,7.92,No
+65957,France,Ukraine,VT-1,SAM,Missiles,2022,No,100,Yes,2022,No,Second hand,0.15,0.06,6,No
+65610,France,Ukraine,VAB-VTT,APC,Armoured vehicles,2022,No,60,No,2022,No,Second hand,0.3,0.12,7.2,No
+65938,France,Ukraine,Crotale-NG SAMS,SAM system,Air defence systems,2022,No,4,Yes,2022,No,Second hand,10,4,16,No
+65876,France,Ukraine,TR-F-1 155mm,towed gun,Artillery,2022,No,15,Yes,2022,No,Second hand,0.95,0.38,5.7,No
+67029,France,Ukraine,CAESAR 155mm,self-propelled gun,Artillery,2023,No,6,Yes,2023,Yes,Second hand,1.1,0.44,2.64,No
+66784,France,Ukraine,Storm Shadow,ASM,Missiles,2023,No,50,Yes,2023,No,Second hand,0.64,0.26,12.8,No
+65973,France,Ukraine,M-270 MLRS,self-propelled MRL,Artillery,2022,No,2,Yes,2022,No,Second hand,1.2,0.48,0.96,No
+65973,France,Ukraine,M-270 MLRS,self-propelled MRL,Artillery,2022,No,2,No,2023,No,Second hand,1.2,0.48,0.96,No
+65387,Germany,Ukraine,PzH-2000 155mm,self-propelled gun,Artillery,2022,No,14,No,2022,No,Second hand,4.5,1.8,25.2,No
+65877,Germany,Ukraine,Dingo-2,APC,Armoured vehicles,2022,No,50,No,2022,No,Second hand,0.35,0.14,7,No
+65828,Germany,Ukraine,Vulcano-GLR,guided shell,Missiles,2022,No,255,Yes,2023,No,New,0.04,0.04,10.2,No
+66889,Germany,Ukraine,IRIS-T,BVRAAM,Missiles,2023,No,120,No,2023,No,Second hand,0.2,0.08,9.6,No
+66287,Germany,Ukraine,MIM-104 PAC-2,SAM,Missiles,2022,Yes,175,Yes,2023,No,Second hand,1,0.4,70,No
+65563,Germany,Ukraine,IRIS-T SL -,SAM system,Air defence systems,2022,No,1,No,2022,No,New,17.5,17.5,17.5,No
+65563,Germany,Ukraine,IRIS-T SL -,SAM system,Air defence systems,2022,No,2,Yes,2023,No,New,17.5,17.5,35,No
+65585,Germany,Ukraine,vehicle engine 801-1100,vehicle engine,Engines,2022,No,5,Yes,2022,Yes,New,0.16,0.16,0.8,No
+66448,Germany,Ukraine,BPz-2,ARV,Armoured vehicles,2023,No,16,No,2023,No,Second hand but modernized,1.4,0.92,14.78,No
+66509,Germany,Ukraine,Eagle,APV,Armoured vehicles,2023,Yes,10,Yes,2023,Yes,Second hand,0.14,0.06,0.56,No
+65600,Germany,Ukraine,GMLRS,guided rocket,Missiles,2022,No,294,Yes,2022,No,Second hand,0.08,0.03,9.41,No
+65458,Germany,Ukraine,COBRA GR,artillery locating radar,Sensors,2022,No,1,Yes,2022,No,Second hand,10,4,4,No
+66279,Germany,Ukraine,Leopard-2A6,tank,Armoured vehicles,2022,Yes,18,No,2023,No,Second hand,5,2,36,No
+65267,Germany,Ukraine,Stinger,portable SAM,Missiles,2022,No,500,No,2022,No,Second hand,0.08,0.03,16,No
+65432,Germany,Ukraine,Gepard,self-propelled AA gun,Air defence systems,2022,No,30,No,2022,No,Second hand,9,3.6,108,No
+65432,Germany,Ukraine,Gepard,self-propelled AA gun,Air defence systems,2022,No,22,Yes,2023,No,Second hand,9,3.6,79.2,No
+65720,Germany,Ukraine,Biber,armoured bridgelayer,Armoured vehicles,2022,No,11,No,2023,No,Second hand,1,0.4,4.4,No
+65720,Germany,Ukraine,Biber,armoured bridgelayer,Armoured vehicles,2022,No,3,No,2022,No,Second hand,1,0.4,1.2,No
+66312,Germany,Ukraine,Leopard-1A5,tank,Armoured vehicles,2023,No,30,Yes,2023,No,Second hand,2.6,1.04,31.2,No
+66291,Germany,Ukraine,Buffel ARV,ARV,Armoured vehicles,2022,Yes,2,No,2023,No,Second hand,2.25,0.9,1.8,No
+66214,Germany,Ukraine,Patriot-3 SAMS,SAM system,Air defence systems,2023,No,2,No,2023,No,Second hand,55,22,44,No
+66376,Germany,Ukraine,SMART-155,guided shell,Missiles,2022,No,100,Yes,2022,Yes,Second hand,0.04,0.02,1.6,No
+65287,Germany,Ukraine,Strela-2,portable SAM,Missiles,2022,No,2700,No,2022,No,Second hand,0.04,0.02,43.2,No
+66972,Germany,Ukraine,AIM-7E,BVRAAM,Missiles,2023,No,8,No,2023,Yes,Second hand,0.15,0.06,0.48,No
+65647,Germany,Ukraine,BPz-2,ARV,Armoured vehicles,2022,No,15,Yes,2022,No,Second hand,1.4,0.56,8.4,No
+66213,Germany,Ukraine,Marder-1A3,IFV,Armoured vehicles,2022,No,90,No,2023,No,Second hand,1.7,0.68,61.2,No
+65956,Germany,Ukraine,Dachs,AEV,Armoured vehicles,2022,No,5,No,2023,No,Second hand,2,0.8,4,No
+65564,Germany,Ukraine,M-270 MLRS,self-propelled MRL,Artillery,2022,No,5,Yes,2022,No,Second hand,1.2,0.48,2.4,No
+66867,Germany,Ukraine,Luna-NG,UAV,Aircraft,2023,No,5,Yes,2023,No,New,0.2,0.2,1,No
+65836,Germany,Ukraine,IRIS-T SLM,SAM,Missiles,2022,No,100,Yes,2022,No,New,0.4,0.4,40,No
+65836,Germany,Ukraine,IRIS-T SLM,SAM,Missiles,2022,No,400,Yes,2023,No,New,0.4,0.4,160,No
+66248,Germany,Ukraine,TRML-4D,air search radar,Sensors,2023,No,8,Yes,2023,No,New,12,12,96,No
+63307,Greece,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,20,No,2022,No,Second hand,0.9,0.36,7.2,No
+63307,Greece,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,20,No,2023,No,Second hand,0.9,0.36,7.2,No
+65429,Italy,Ukraine,MLS Shield -,APC,Armoured vehicles,2022,No,11,No,2022,No,New,0.3,0.3,3.3,No
+66080,Italy,Ukraine,M-270 MLRS,self-propelled MRL,Artillery,2022,No,2,No,2022,Yes,Second hand,1.2,0.48,0.96,No
+66272,Italy,Ukraine,ASTER-30,SAM,Missiles,2022,No,100,Yes,2023,No,Second hand,1,0.4,40,No
+65428,Italy,Ukraine,PzH-2000 155mm,self-propelled gun,Artillery,2022,No,6,Yes,2022,Yes,Second hand,4.5,1.8,10.8,No
+67405,Italy,Ukraine,Aspide,BVRAAM/SAM,Missiles,2023,No,75,Yes,2023,No,Second hand,0.18,0.07,5.4,No
+67404,Italy,Ukraine,Spada-2000,SAM system,Air defence systems,2023,No,1,No,2023,No,Second hand,16,6.4,6.4,No
+66009,Italy,Ukraine,LMV,APV,Armoured vehicles,2022,No,10,Yes,2022,No,Second hand,0.15,0.06,0.6,No
+66011,Italy,Ukraine,M-109A1 155mm,self-propelled gun,Artillery,2022,No,20,Yes,2022,No,Second hand,1.1,0.44,8.8,No
+66011,Italy,Ukraine,M-109A1 155mm,self-propelled gun,Artillery,2022,No,40,Yes,2023,No,Second hand,1.1,0.44,17.6,No
+65519,Italy,Ukraine,FH-70 155mm,towed gun,Artillery,2022,No,10,Yes,2022,Yes,Second hand,1,0.4,4,No
+66010,Italy,Ukraine,M-113,APC,Armoured vehicles,2022,No,20,Yes,2022,No,Second hand,0.25,0.1,2,No
+66524,Italy,Ukraine,X-TAR,air search radar,Sensors,2022,No,1,No,2023,No,New,5,5,5,No
+65802,Latvia,Ukraine,Mi-2,light helicopter,Aircraft,2022,No,2,No,2022,No,Second hand,1.1,0.44,0.88,No
+65809,Latvia,Ukraine,M-109A5 155mm,self-propelled gun,Artillery,2022,No,6,No,2022,No,Second hand,1.25,0.5,3,No
+65175,Latvia,Ukraine,Stinger,portable SAM,Missiles,2022,No,12,Yes,2022,No,Second hand,0.08,0.03,0.38,No
+67121,Latvia,Ukraine,Penguin UAV,UAV,Aircraft,2022,No,10,Yes,2022,No,New,0.05,0.05,0.5,No
+65803,Latvia,Ukraine,Mi-17,transport helicopter,Aircraft,2022,No,2,No,2022,No,Second hand,7.25,2.9,5.8,No
+65803,Latvia,Ukraine,Mi-17,transport helicopter,Aircraft,2022,No,2,Yes,2023,No,Second hand,7.25,2.9,5.8,No
+66250,Latvia,Ukraine,Stinger,portable SAM,Missiles,2022,Yes,20,Yes,2023,No,Second hand,0.08,0.03,0.64,No
+65875,Lithuania,Ukraine,M-101 105mm,towed gun,Artillery,2022,No,18,Yes,2022,No,Second hand,0.45,0.18,3.24,No
+65686,Lithuania,Ukraine,2B11 120mm,mortar,Artillery,2022,No,30,Yes,2022,No,Second hand,0.25,0.1,3,No
+65546,Lithuania,Ukraine,M-113,APC,Armoured vehicles,2022,No,52,No,2022,No,Second hand,0.25,0.1,5.2,No
+65546,Lithuania,Ukraine,M-113,APC,Armoured vehicles,2022,No,20,No,2023,No,Second hand,0.25,0.1,2,No
+65008,Lithuania,Ukraine,L-39Z,trainer/combat aircraft,Aircraft,2021,No,1,No,2021,Yes,Second hand,5,2,2,No
+66255,Lithuania,Ukraine,Mi-17,transport helicopter,Aircraft,2022,Yes,2,No,2023,No,Second hand,7.25,2.9,5.8,No
+65174,Lithuania,Ukraine,Stinger,portable SAM,Missiles,2022,No,25,Yes,2022,No,Second hand,0.08,0.03,0.8,No
+65281,Luxembourg,Ukraine,NLAW,anti-tank missile,Missiles,2022,No,100,No,2022,No,Second hand,0.01,0,0.4,No
+66013,Morocco,Ukraine,T-72B,tank,Armoured vehicles,2022,No,20,No,2022,No,Second hand,2.6,1.04,20.8,No
+66013,Morocco,Ukraine,T-72B,tank,Armoured vehicles,2022,No,70,Yes,2023,No,Second hand,2.6,1.04,72.8,No
+65650,Netherlands,Ukraine,Harpoon Block-2,anti-ship missile/SSM,Missiles,2022,No,10,Yes,2022,No,Second hand,1,0.4,4,No
+67301,Netherlands,Ukraine,Biber,armoured bridgelayer,Armoured vehicles,2023,No,5,No,2023,No,Second hand,1,0.4,2,No
+66267,Netherlands,Ukraine,MIM-104 PAC-2,SAM,Missiles,2022,Yes,40,Yes,2023,No,Second hand,1,0.4,16,No
+65406,Netherlands,Ukraine,AIFV-APC,APC,Armoured vehicles,2022,No,196,No,2022,No,Second hand,0.3,0.12,23.52,No
+65406,Netherlands,Ukraine,AIFV-APC,APC,Armoured vehicles,2022,No,30,Yes,2023,No,Second hand,0.3,0.12,3.6,No
+65263,Netherlands,Ukraine,SQUIRE,ground surv radar,Sensors,2022,No,2,No,2022,No,Second hand,0.5,0.2,0.4,No
+65270,Netherlands,Ukraine,TPQ-36,artillery locating radar,Sensors,2022,No,5,No,2022,No,Second hand,3,1.2,6,No
+65409,Netherlands,Ukraine,PzH-2000 155mm,self-propelled gun,Artillery,2022,Yes,8,No,2022,No,Second hand,4.5,1.8,14.4,No
+66135,Netherlands,Ukraine,MO-120-RT 120mm,mortar,Artillery,2022,No,10,Yes,2022,Yes,Second hand,0.3,0.12,1.2,No
+66394,Netherlands,Ukraine,Fennek,reconnaissance AV,Armoured vehicles,2023,No,8,Yes,2023,No,Second hand,0.3,0.12,0.96,No
+65937,Netherlands,Ukraine,AIM-120B AMRAAM,BVRAAM,Missiles,2022,No,15,Yes,2022,Yes,Second hand,0.4,0.16,2.4,No
+65266,Netherlands,Ukraine,Stinger,portable SAM,Missiles,2022,No,200,No,2022,No,Second hand,0.08,0.03,6.4,No
+66435,Netherlands,Ukraine,BVS-10,APC,Armoured vehicles,2022,No,10,Yes,2023,Yes,Second hand,0.25,0.1,1,No
+65781,North Macedonia,Ukraine,Su-25,ground attack aircraft,Aircraft,2022,No,4,Yes,2023,No,Second hand,11.5,4.6,18.4,No
+65722,North Macedonia,Ukraine,T-72M1,tank,Armoured vehicles,2022,No,30,Yes,2022,No,Second hand,2.6,1.04,31.2,No
+66903,Norway,Ukraine,IRIS-T,BVRAAM,Missiles,2023,No,100,Yes,2023,Yes,Second hand,0.2,0.08,8,No
+66575,Norway,Ukraine,ARTHUR,artillery locating radar,Sensors,2023,No,3,Yes,2023,Yes,Second hand,4,1.6,4.8,No
+65721,Norway,Ukraine,LMV,APV,Armoured vehicles,2022,No,14,No,2022,No,Second hand,0.15,0.06,0.84,No
+66825,Norway,Ukraine,NASAMS-2 -,SAM system,Air defence systems,2023,No,2,No,2023,No,Second hand,15,6,12,No
+67038,Norway,Ukraine,Dingo-2,APC,Armoured vehicles,2023,No,5,Yes,2023,Yes,Second hand but modernized,0.35,0.23,1.16,No
+65499,Norway,Ukraine,M-109A1 155mm,self-propelled gun,Artillery,2022,No,23,No,2022,No,Second hand,1.1,0.44,10.12,No
+66366,Norway,Ukraine,NASAMS-2 -,SAM system,Air defence systems,2023,No,2,No,2023,No,Second hand,15,6,12,No
+66281,Norway,Ukraine,Leopard-2A4,tank,Armoured vehicles,2022,Yes,8,No,2023,No,Second hand,4,1.6,12.8,No
+66534,Norway,Ukraine,BPz-2,ARV,Armoured vehicles,2023,No,4,No,2023,No,Second hand,1.4,0.56,2.24,No
+65413,Norway,Ukraine,Mistral SAM,portable SAM,Missiles,2022,No,100,Yes,2022,No,Second hand,0.09,0.04,3.6,No
+65619,Norway,Ukraine,NASAMS-2 -,SAM system,Air defence systems,2022,No,2,No,2022,No,New,15,15,30,No
+65874,Norway,Ukraine,AGM-114 Hellfire,anti-tank missile,Missiles,2022,No,160,No,2022,No,Second hand,0.04,0.02,2.56,No
+64752,Poland,Ukraine,Dozor-B,APC/APV,Armoured vehicles,2019,No,2,Yes,2020,No,New,0.15,0.15,0.3,Yes
+64752,Poland,Ukraine,Dozor-B,APC/APV,Armoured vehicles,2019,No,22,Yes,2021,No,New,0.15,0.15,3.3,Yes
+65245,Poland,Ukraine,Piorun,portable SAM,Missiles,2022,No,1000,Yes,2022,No,New,0.08,0.08,80,No
+65395,Poland,Ukraine,T-72M1,tank,Armoured vehicles,2022,No,30,Yes,2023,No,Second hand,2.6,1.04,31.2,No
+65395,Poland,Ukraine,T-72M1,tank,Armoured vehicles,2022,No,240,Yes,2022,No,Second hand,2.6,1.04,249.6,No
+65273,Poland,Ukraine,MiG-29S,FGA aircraft,Aircraft,2023,No,14,Yes,2023,No,Second hand,28.5,11.4,159.6,No
+38043,Poland,Ukraine,Leopard-2A4,tank,Armoured vehicles,2022,Yes,14,No,2023,No,Second hand,4,1.6,22.4,No
+65699,Poland,Ukraine,PT-91M,tank,Armoured vehicles,2022,No,20,Yes,2022,No,Second hand,3.2,1.28,25.6,No
+66341,Poland,Ukraine,PT-91M,tank,Armoured vehicles,2023,No,30,Yes,2023,No,Second hand,3.2,1.28,38.4,No
+65583,Poland,Ukraine,Krab 155mm,self-propelled gun,Artillery,2022,No,18,No,2022,No,Second hand,4.5,1.8,32.4,No
+66812,Poland,Ukraine,Mi-24V,combat helicopter,Aircraft,2023,No,10,Yes,2023,No,Second hand,8.5,3.4,34,No
+62904,Poland,Ukraine,MT-LB,APC,Armoured vehicles,2018,Yes,9,Yes,2018,Yes,Second hand,0.25,0.1,0.9,No
+62904,Poland,Ukraine,MT-LB,APC,Armoured vehicles,2018,Yes,45,No,2019,No,Second hand,0.25,0.1,4.5,No
+61350,Poland,Ukraine,Warmate,loitering munition,Missiles,2017,No,100,Yes,2018,Yes,New,0.06,0.06,6,No
+65495,Poland,Ukraine,Warmate,loitering munition,Missiles,2022,No,150,Yes,2022,No,New,0.06,0.06,9,No
+65493,Poland,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,40,Yes,2022,No,Second hand,0.9,0.36,14.4,No
+65493,Poland,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,40,Yes,2023,No,Second hand,0.9,0.36,14.4,No
+63330,Poland,Ukraine,AMV-IFV,IFV,Armoured vehicles,2023,No,100,Yes,2023,No,New,1.7,1.7,170,No
+65500,Portugal,Ukraine,M-113,APC,Armoured vehicles,2022,No,29,Yes,2023,No,Second hand,0.25,0.1,2.9,No
+65500,Portugal,Ukraine,M-113,APC,Armoured vehicles,2022,No,18,No,2022,No,Second hand,0.25,0.1,1.8,No
+65511,Portugal,Ukraine,VM-90P,APC,Armoured vehicles,2022,No,4,No,2022,No,Second hand,0.11,0.04,0.18,No
+66285,Portugal,Ukraine,Leopard-2A6,tank,Armoured vehicles,2023,No,3,No,2023,No,Second hand,5,2,6,No
+66644,Portugal,Ukraine,L-118 105mm,towed gun,Artillery,2023,No,5,Yes,2023,Yes,Second hand,0.6,0.24,1.2,No
+66520,Romania,Ukraine,TAB-71,APC,Armoured vehicles,2022,No,10,Yes,2023,No,Second hand,0.25,0.1,1,No
+66520,Romania,Ukraine,TAB-71,APC,Armoured vehicles,2022,No,10,Yes,2022,No,Second hand,0.25,0.1,1,No
+65275,Slovakia,Ukraine,MiG-29S,FGA aircraft,Aircraft,2023,No,13,Yes,2023,No,Second hand,28.5,11.4,148.2,No
+65607,Slovakia,Ukraine,Mi-2,light helicopter,Aircraft,2022,No,1,No,2022,No,Second hand,1.1,0.44,0.44,No
+65525,Slovakia,Ukraine,Igla,portable SAM,Missiles,2022,No,100,Yes,2022,No,Second hand,0.08,0.03,3.2,No
+65384,Slovakia,Ukraine,5V55U,SAM,Missiles,2022,No,45,Yes,2022,No,Second hand,1,0.4,18,No
+65383,Slovakia,Ukraine,S-300PMU,SAM system,Air defence systems,2022,No,1,No,2022,No,Second hand,45,18,18,No
+65833,Slovakia,Ukraine,BMP-1,IFV,Armoured vehicles,2022,No,30,No,2022,No,Second hand,0.9,0.36,10.8,No
+65606,Slovakia,Ukraine,Mi-17,transport helicopter,Aircraft,2022,No,4,No,2022,No,Second hand,7.25,2.9,11.6,No
+66380,Slovakia,Ukraine,3M9,SAM,Missiles,2023,No,30,Yes,2023,No,Second hand,0.12,0.05,1.44,No
+65912,Slovakia,Ukraine,Zuzana-2 155mm -,self-propelled gun,Artillery,2022,Yes,2,No,2023,No,New,1.32,1.32,2.64,No
+65775,Slovakia,Ukraine,Zuzana-2 155mm -,self-propelled gun,Artillery,2022,No,7,No,2022,No,New,1.32,1.32,9.24,No
+65775,Slovakia,Ukraine,Zuzana-2 155mm -,self-propelled gun,Artillery,2022,No,1,No,2023,No,New,1.32,1.32,1.32,No
+65653,Slovenia,Ukraine,M-80,IFV,Armoured vehicles,2022,No,35,No,2022,No,Second hand,0.9,0.36,12.6,No
+66493,Slovenia,Ukraine,Pandur,APC,Armoured vehicles,2023,No,20,No,2023,No,Second hand,0.3,0.12,2.4,No
+65883,Slovenia,Ukraine,M-55S,tank,Armoured vehicles,2022,No,28,Yes,2022,Yes,Second hand,2.25,0.9,25.2,No
+65586,South Korea,Ukraine,K-9 chassis -,self-propelled gun chassis,Armoured vehicles,2022,No,5,Yes,2022,Yes,New,0.59,0.59,2.95,No
+67474,Spain,Ukraine,Harpoon Block-2,anti-ship missile/SSM,Missiles,2023,No,5,No,2023,No,Second hand,1,0.4,2,No
+66054,Spain,Ukraine,Model-56 105mm,towed gun,Artillery,2022,No,8,No,2023,No,Second hand,0.45,0.18,1.44,No
+65779,Spain,Ukraine,M-113,APC,Armoured vehicles,2022,No,60,No,2023,No,Second hand,0.25,0.1,6,No
+65581,Spain,Ukraine,Aspide,BVRAAM/SAM,Missiles,2022,No,25,Yes,2022,No,Second hand,0.18,0.07,1.8,No
+65578,Spain,Ukraine,RG-31 Nyala,APC,Armoured vehicles,2022,No,1,No,2022,No,Second hand,0.18,0.07,0.07,No
+65579,Spain,Ukraine,Leopard-2A4,tank,Armoured vehicles,2022,Yes,10,No,2023,No,Second hand,4,1.6,16,No
+65946,Spain,Ukraine,MIM-23B,SAM,Missiles,2022,No,25,Yes,2022,No,Second hand,0.17,0.07,1.7,No
+65580,Spain,Ukraine,Spada,SAM system,Air defence systems,2022,No,1,No,2022,No,Second hand,20,8,8,No
+67426,Spain,Ukraine,BMR-600,APC,Armoured vehicles,2023,Yes,1,No,2023,No,Second hand,0.3,0.12,0.12,No
+66157,Sweden,Ukraine,AIM-120A AMRAAM,BVRAAM,Missiles,2023,No,25,Yes,2023,No,Second hand,0.4,0.16,4,No
+66511,Sweden,Ukraine,RBS-70,portable SAM,Missiles,2023,No,25,Yes,2023,No,Second hand,0.08,0.03,0.8,No
+65577,Sweden,Ukraine,AGM-114 Hellfire,anti-tank missile,Missiles,2022,No,50,Yes,2022,No,Second hand,0.04,0.02,0.8,No
+66522,Sweden,Ukraine,Giraffe-75,air search radar,Sensors,2023,Yes,1,Yes,2023,No,Second hand,4,1.6,1.6,No
+66343,Sweden,Ukraine,Leopard-2A5,tank,Armoured vehicles,2023,No,10,No,2023,No,Second hand,4.5,1.8,18,No
+66241,Sweden,Ukraine,CV-90,IFV,Armoured vehicles,2023,No,50,No,2023,No,Second hand,1.5,0.6,30,No
+66242,Sweden,Ukraine,NLAW,anti-tank missile,Missiles,2023,No,90,Yes,2023,No,Second hand,0.01,0,0.36,No
+66239,Sweden,Ukraine,Archer 155mm,self-propelled gun,Artillery,2023,No,8,No,2023,No,New,1.5,1.5,12,No
+65283,Turkiye,Ukraine,Bayraktar TB-2,armed UAV,Aircraft,2022,No,7,Yes,2022,No,New,2.4,2.4,16.8,No
+63994,Turkiye,Ukraine,Bayraktar TB-2,armed UAV,Aircraft,2020,Yes,60,Yes,2022,No,New,2.4,2.4,144,Yes
+61996,Turkiye,Ukraine,Bayraktar TB-2,armed UAV,Aircraft,2018,No,6,Yes,2021,No,New,2.4,2.4,14.4,No
+61996,Turkiye,Ukraine,Bayraktar TB-2,armed UAV,Aircraft,2018,No,6,Yes,2019,No,New,2.4,2.4,14.4,No
+66929,Turkiye,Ukraine,Bayraktar TB-2,armed UAV,Aircraft,2023,No,1,No,2023,No,New,2.4,2.4,2.4,No
+66508,Turkiye,Ukraine,Cobra-2 -,APC,Armoured vehicles,2023,No,20,Yes,2023,No,New,0.25,0.25,5,No
+65790,Turkiye,Ukraine,Kirpi,APC,Armoured vehicles,2022,No,50,Yes,2022,No,Second hand,0.35,0.14,7,No
+65790,Turkiye,Ukraine,Kirpi,APC,Armoured vehicles,2022,No,42,Yes,2023,Yes,Second hand,0.35,0.14,5.88,No
+60182,UAE,Ukraine,Shrek,APC,Armoured vehicles,2015,Yes,6,No,2015,No,New,0.2,0.2,1.2,No
+60180,UAE,Ukraine,Spartan CAN,APC/APV,Armoured vehicles,2015,No,31,No,2015,No,New,0.16,0.16,4.96,No
+60181,UAE,Ukraine,Cougar APV,APV,Armoured vehicles,2015,Yes,10,No,2015,No,New,0.14,0.14,1.4,No
+65427,United Kingdom,Ukraine,Brimstone,ASM,Missiles,2022,No,200,Yes,2022,No,Second hand,0.15,0.06,12,No
+65427,United Kingdom,Ukraine,Brimstone,ASM,Missiles,2022,No,600,Yes,2023,No,Second hand,0.15,0.06,36,No
+66506,United Kingdom,Ukraine,Storm Shadow,ASM,Missiles,2023,No,50,Yes,2023,No,Second hand,0.64,0.26,12.8,No
+67234,United Kingdom,Ukraine,Bronco,APC,Armoured vehicles,2023,No,10,No,2023,No,Second hand,0.3,0.12,1.2,No
+66222,United Kingdom,Ukraine,Challenger-2,tank,Armoured vehicles,2022,Yes,14,No,2023,No,Second hand,4.25,1.7,23.8,No
+65407,United Kingdom,Ukraine,Stormer HVM,mobile SAM system,Air defence systems,2022,No,6,No,2022,No,Second hand,2,0.8,4.8,No
+65430,United Kingdom,Ukraine,MXT-MV,APV,Armoured vehicles,2022,No,20,Yes,2022,No,Second hand,0.16,0.06,1.28,No
+66235,United Kingdom,Ukraine,FV-432,APC,Armoured vehicles,2022,Yes,100,Yes,2023,No,Second hand,0.3,0.12,12,No
+66530,United Kingdom,Ukraine,FV-432,APC,Armoured vehicles,2022,No,33,Yes,2023,No,Second hand,0.3,0.12,3.96,No
+65318,United Kingdom,Ukraine,Javelin ATM,anti-tank missile,Missiles,2022,No,200,Yes,2022,No,Second hand,0.03,0.01,2.4,No
+65173,United Kingdom,Ukraine,NLAW,anti-tank missile,Missiles,2022,No,6900,Yes,2022,No,Second hand,0.01,0,27.6,No
+65424,United Kingdom,Ukraine,AS-90B 155mm,self-propelled gun,Artillery,2022,Yes,32,No,2023,No,Second hand,2,0.8,25.6,No
+65457,United Kingdom,Ukraine,ARTHUR,artillery locating radar,Sensors,2022,No,2,Yes,2022,No,Second hand,4,1.6,3.2,No
+65436,United Kingdom,Ukraine,L-118 105mm,towed gun,Artillery,2022,No,60,Yes,2022,No,Second hand,0.6,0.24,14.4,No
+64588,United Kingdom,Ukraine,Sandown,minehunter,Ships,2021,Yes,2,No,2022,No,Second hand,45,18,36,No
+66356,United Kingdom,Ukraine,Pinzgauer,APC,Armoured vehicles,2022,No,10,Yes,2022,No,Second hand,0.16,0.06,0.64,No
+58511,United Kingdom,Ukraine,Saxon,APC,Armoured vehicles,2014,No,75,No,2015,No,Second hand,0.2,0.08,6,No
+64590,United Kingdom,Ukraine,Brimstone,ASM,Missiles,2022,No,90,Yes,2022,No,New,0.15,0.15,13.5,No
+66234,United Kingdom,Ukraine,Challenger ARV,ARV,Armoured vehicles,2022,Yes,2,No,2023,No,Second hand,2.25,0.9,1.8,No
+65389,United Kingdom,Ukraine,Cougar APC,APC,Armoured vehicles,2022,No,60,Yes,2022,No,Second hand,0.35,0.14,8.4,No
+66015,United Kingdom,Ukraine,Spartan UK,APC,Armoured vehicles,2022,No,85,Yes,2022,Yes,Second hand,0.25,0.1,8.5,No
+65601,United Kingdom,Ukraine,M-270 MLRS,self-propelled MRL,Artillery,2022,No,6,Yes,2022,No,Second hand,1.2,0.48,2.88,No
+65431,United Kingdom,Ukraine,Spartan UK,APC,Armoured vehicles,2022,No,40,Yes,2022,No,Second hand,0.25,0.1,4,No
+65940,United Kingdom,Ukraine,Spartan UK,APC,Armoured vehicles,2022,No,14,No,2022,No,Second hand,0.25,0.1,1.4,No
+65319,United Kingdom,Ukraine,Starstreak,SAM,Missiles,2022,No,1700,Yes,2022,No,Second hand,0.09,0.04,61.2,No
+65319,United Kingdom,Ukraine,Starstreak,SAM,Missiles,2022,No,100,Yes,2023,No,Second hand,0.09,0.04,3.6,No
+65939,United Kingdom,Ukraine,AIM-120C AMRAAM,BVRAAM,Missiles,2022,No,25,Yes,2022,Yes,Second hand,0.6,0.24,6,No
+65939,United Kingdom,Ukraine,AIM-120C AMRAAM,BVRAAM,Missiles,2022,No,25,Yes,2023,Yes,Second hand,0.6,0.24,6,No
+66088,United Kingdom,Ukraine,Sea King-3,transport helicopter,Aircraft,2022,No,1,Yes,2022,No,Second hand,6.75,2.7,2.7,No
+66088,United Kingdom,Ukraine,Sea King-3,transport helicopter,Aircraft,2022,No,2,Yes,2023,No,Second hand,6.75,2.7,5.4,No
+66087,United Kingdom,Ukraine,Brimstone-2,ASM,Missiles,2022,No,50,Yes,2022,No,New,0.2,0.2,10,No
+66532,United Kingdom,Ukraine,Spartan UK,APC,Armoured vehicles,2022,No,16,No,2023,No,Second hand,0.25,0.1,1.6,No
+65602,United Kingdom,Ukraine,GMLRS,guided rocket,Missiles,2022,No,720,Yes,2022,No,Second hand,0.08,0.03,23.04,No
+65602,United Kingdom,Ukraine,GMLRS,guided rocket,Missiles,2022,No,100,Yes,2023,No,Second hand,0.08,0.03,3.2,No
+66953,United Kingdom,Ukraine,Spartan UK,APC,Armoured vehicles,2023,No,23,No,2023,No,Second hand,0.25,0.1,2.3,No
+65532,United Kingdom,Ukraine,LMM Martlet,anti-ship missile/ASM/SAM,Missiles,2022,No,300,Yes,2022,No,New,0.1,0.1,30,No
+66846,United Kingdom,Ukraine,ASRAAM,BVRAAM,Missiles,2023,No,100,Yes,2023,No,Second hand,0.18,0.07,7.2,No
+66846,United Kingdom,Ukraine,ASRAAM,BVRAAM,Missiles,2023,No,200,Yes,2022,No,Second hand,0.18,0.07,14.4,No
+65838,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2022,No,24,Yes,2023,Yes,New,3,3,72,No
+65562,United States,Ukraine,GMLRS,guided rocket,Missiles,2022,No,7000,Yes,2022,No,Second hand,0.08,0.03,224,No
+65562,United States,Ukraine,GMLRS,guided rocket,Missiles,2022,No,12500,Yes,2023,No,Second hand,0.08,0.03,400,No
+65819,United States,Ukraine,ScanEagle,UAV,Aircraft,2022,No,30,Yes,2022,No,Second hand,0.04,0.02,0.48,No
+65818,United States,Ukraine,L-118 105mm,towed gun,Artillery,2022,No,36,No,2022,No,Second hand,0.6,0.24,8.64,No
+65818,United States,Ukraine,L-118 105mm,towed gun,Artillery,2022,No,36,No,2023,No,Second hand,0.6,0.24,8.64,No
+65376,United States,Ukraine,Switchblade-600,loitering munition,Missiles,2022,No,1000,Yes,2023,No,New,0.15,0.15,150,No
+65635,United States,Ukraine,vehicle engine 301-400,vehicle engine,Engines,2022,No,11,No,2022,No,New,0.05,0.05,0.55,No
+66040,United States,Ukraine,Avenger AD,mobile SAM system,Air defence systems,2022,No,12,No,2023,No,Second hand,0.63,0.25,3.02,No
+66246,United States,Ukraine,Piranha-3,APC,Armoured vehicles,2022,Yes,189,No,2023,No,Second hand,0.35,0.14,26.46,No
+66863,United States,Ukraine,MIM-104 PAC-3,ABM missile,Missiles,2023,No,300,Yes,2023,No,Second hand,0.8,0.32,96,No
+65397,United States,Ukraine,MPQ-64 Sentinel,air search radar,Sensors,2022,No,4,No,2022,No,Second hand,5,2,8,No
+65390,United States,Ukraine,UFH 155mm,towed gun,Artillery,2022,No,142,No,2022,No,Second hand,1,0.4,56.8,No
+65379,United States,Ukraine,APKWS,ASM,Missiles,2022,No,300,Yes,2023,No,New,0.01,0.01,3,No
+66638,United States,Ukraine,BATT,APC,Armoured vehicles,2022,No,20,Yes,2022,No,New,0.16,0.16,3.2,No
+66638,United States,Ukraine,BATT,APC,Armoured vehicles,2022,No,80,Yes,2023,No,New,0.16,0.16,12.8,No
+66319,United States,Ukraine,S-70A Black Hawk,transport helicopter,Aircraft,2023,Yes,1,Yes,2023,No,Second hand,6.5,2.6,2.6,No
+66280,United States,Ukraine,M-1A1 Abrams,tank,Armoured vehicles,2022,Yes,31,No,2023,No,Second hand,4,1.6,49.6,No
+58923,United States,Ukraine,Javelin ATM,anti-tank missile,Missiles,2018,No,210,Yes,2018,No,New,0.03,0.03,6.3,No
+66482,United States,Ukraine,UFH 155mm,towed gun,Artillery,2023,No,38,Yes,2023,No,Second hand,1,0.4,15.2,No
+65552,United States,Ukraine,M-109A6 155mm,self-propelled gun,Artillery,2022,No,18,No,2023,No,Second hand,1.35,0.54,9.72,No
+65396,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2022,No,19,Yes,2022,No,Second hand,3,1.2,22.8,No
+65246,United States,Ukraine,Stinger,portable SAM,Missiles,2022,No,1450,Yes,2022,No,Second hand,0.08,0.03,46.4,No
+65246,United States,Ukraine,Stinger,portable SAM,Missiles,2022,No,600,Yes,2023,No,Second hand,0.08,0.03,19.2,No
+65074,United States,Ukraine,Mi-17,transport helicopter,Aircraft,2022,Yes,16,No,2022,No,Second hand,7.25,2.9,46.4,No
+65074,United States,Ukraine,Mi-17,transport helicopter,Aircraft,2022,Yes,4,Yes,2023,Yes,Second hand,7.25,2.9,11.6,No
+62991,United States,Ukraine,Javelin ATM,anti-tank missile,Missiles,2019,No,150,Yes,2020,No,New,0.03,0.03,4.5,No
+65201,United States,Ukraine,Javelin ATM,anti-tank missile,Missiles,2021,No,300,Yes,2022,No,New,0.03,0.03,9,No
+66215,United States,Ukraine,M-2A3 Bradley,IFV,Armoured vehicles,2022,No,186,Yes,2023,No,Second hand,1.8,0.72,133.92,No
+64812,United States,Ukraine,Javelin ATM,anti-tank missile,Missiles,2021,No,180,No,2021,No,New,0.03,0.03,5.4,No
+66460,United States,Ukraine,MIM-104 PAC-2,SAM,Missiles,2023,No,150,Yes,2023,No,Second hand,1,0.4,60,No
+63069,United States,Ukraine,Island PC,patrol craft,Ships,2019,Yes,3,Yes,2021,No,Second hand,9.2,3.68,11.04,No
+59302,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2015,No,4,No,2016,No,Second hand,3,1.2,4.8,No
+59302,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2015,No,2,No,2019,No,Second hand,3,1.2,2.4,No
+59302,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2015,No,3,Yes,2017,Yes,Second hand,3,1.2,3.6,No
+59302,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2015,No,2,No,2018,No,Second hand,3,1.2,2.4,No
+59302,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2015,No,2,Yes,2021,Yes,Second hand,3,1.2,2.4,No
+59302,United States,Ukraine,TPQ-36,artillery locating radar,Sensors,2015,No,2,No,2015,No,Second hand,3,1.2,2.4,No
+65821,United States,Ukraine,TOW,anti-tank missile,Missiles,2022,No,1500,No,2022,No,Second hand,0.01,0,6,No
+65821,United States,Ukraine,TOW,anti-tank missile,Missiles,2022,No,9000,Yes,2023,No,Second hand,0.01,0,36,No
+67177,United States,Ukraine,M-1150 ABV,AEV,Armoured vehicles,2023,No,1,Yes,2023,No,Second hand,2.5,1,1,No
+58537,United States,Ukraine,HMMWV-UA,APV,Armoured vehicles,2015,No,30,No,2015,No,Second hand,0.13,0.05,1.56,No
+58537,United States,Ukraine,HMMWV-UA,APV,Armoured vehicles,2015,No,20,No,2021,No,Second hand,0.13,0.05,1.04,No
+66359,United States,Ukraine,M-2A3 Bradley,IFV,Armoured vehicles,2023,No,4,No,2023,No,Second hand,1.8,0.72,2.88,No
+67011,United States,Ukraine,ATACMS-1,SSM,Missiles,2023,No,20,Yes,2023,No,Second hand,1.4,0.56,11.2,No
+65977,United States,Ukraine,MIM-23B,SAM,Missiles,2022,No,100,Yes,2022,Yes,Second hand,0.17,0.07,6.8,No
+66523,United States,Ukraine,M-ATV,APV,Armoured vehicles,2023,No,55,Yes,2023,No,Second hand,0.25,0.1,5.5,No
+38809,United States,Ukraine,Penguin UAV,UAV,Aircraft,2023,No,5,Yes,2023,Yes,Second hand,0.05,0.02,0.1,No
+66336,United States,Ukraine,I-HAWK SAMS,SAM system,Air defence systems,2023,No,1,Yes,2023,No,Second hand,37.5,15,15,No
+62188,United States,Ukraine,Island PC,patrol craft,Ships,2018,No,2,No,2018,No,Second hand,9.2,3.68,7.36,No
+67047,United States,Ukraine,AIM-9M,SRAAM,Missiles,2023,No,600,Yes,2023,No,Second hand,0.12,0.05,28.8,No
+63427,United States,Ukraine,M-88A2,ARV,Armoured vehicles,2023,No,8,No,2023,No,Second hand,2,0.8,6.4,No
+65899,United States,Ukraine,HIMARS,self-propelled MRL,Artillery,2022,No,19,No,2023,No,Second hand,1.1,0.44,8.36,No
+65561,United States,Ukraine,HIMARS,self-propelled MRL,Artillery,2022,No,20,No,2022,No,Second hand,1.1,0.44,8.8,No
+66219,United States,Ukraine,AIM-7M,BVRAAM,Missiles,2022,No,400,Yes,2023,No,Second hand,0.18,0.07,28.8,No
+65901,United States,Ukraine,HMMWV-UA,APV,Armoured vehicles,2022,No,150,Yes,2023,Yes,New,0.13,0.13,19.5,No
+66527,United States,Ukraine,BATT,APC,Armoured vehicles,2023,No,16,No,2023,No,New,0.16,0.16,2.56,No
+65657,United States,Ukraine,Excalibur,guided shell,Missiles,2022,No,4700,No,2022,No,Second hand,0.04,0.02,75.2,No
+65657,United States,Ukraine,Excalibur,guided shell,Missiles,2022,No,2300,Yes,2023,No,Second hand,0.04,0.02,36.8,No
+66031,United States,Ukraine,MPQ-64 Sentinel,air search radar,Sensors,2022,No,4,Yes,2022,No,New,5,5,20,No
+66039,United States,Ukraine,K-6 120mm,mortar,Artillery,2022,No,30,Yes,2022,No,Second hand,0.25,0.1,3,No
+66081,United States,Ukraine,vehicle engine 401-600,vehicle engine,Engines,2022,No,39,Yes,2022,No,New,0.08,0.08,3.12,No
+65399,United States,Ukraine,HMMWV-UA,APV,Armoured vehicles,2022,No,450,Yes,2022,No,Second hand,0.13,0.05,23.4,No
+65787,United States,Ukraine,AIM-120C AMRAAM,BVRAAM,Missiles,2022,No,200,Yes,2022,No,Second hand,0.6,0.24,48,No
+65787,United States,Ukraine,AIM-120C AMRAAM,BVRAAM,Missiles,2022,No,50,Yes,2023,No,Second hand,0.6,0.24,12,No
+65398,United States,Ukraine,M-113A3,APC,Armoured vehicles,2022,No,300,No,2022,No,Second hand,0.3,0.12,36,No
+65398,United States,Ukraine,M-113A3,APC,Armoured vehicles,2022,No,100,Yes,2023,No,Second hand,0.3,0.12,12,No
+65417,United States,Ukraine,Phoenix Ghost,loitering munition,Missiles,2022,No,1000,Yes,2022,No,New,0.15,0.15,150,No
+65417,United States,Ukraine,Phoenix Ghost,loitering munition,Missiles,2022,No,800,Yes,2023,No,New,0.15,0.15,120,No
+65786,United States,Ukraine,AGM-88 HARM,anti-radar missile,Missiles,2022,No,60,Yes,2022,No,Second hand,0.25,0.1,6,No
+65786,United States,Ukraine,AGM-88 HARM,anti-radar missile,Missiles,2022,No,50,Yes,2023,No,Second hand,0.25,0.1,5,No
+66178,United States,Ukraine,Cougar APC,APC,Armoured vehicles,2022,No,37,No,2022,Yes,Second hand,0.35,0.14,5.18,No
+66180,United States,Ukraine,Patriot-3 SAMS,SAM system,Air defence systems,2022,No,1,No,2023,No,Second hand,55,22,22,No
+66218,United States,Ukraine,FAASV,ALV,Armoured vehicles,2022,No,30,Yes,2023,No,Second hand,0.6,0.24,7.2,No
+65820,United States,Ukraine,MaxxPro,APC,Armoured vehicles,2022,No,440,No,2022,No,Second hand,0.32,0.13,56.32,No
+66217,United States,Ukraine,MaxxPro,APC,Armoured vehicles,2022,No,234,Yes,2023,No,Second hand,0.32,0.13,29.95,No
+65902,United States,Ukraine,MMR,multi-role radar,Sensors,2022,No,10,Yes,2023,Yes,New,6.5,6.5,65,No
+65837,United States,Ukraine,AIM-120C AMRAAM,BVRAAM,Missiles,2022,No,200,Yes,2023,No,Second hand,0.6,0.24,48,No
+65326,United States,Ukraine,Javelin ATM,anti-tank missile,Missiles,2022,No,7700,Yes,2022,No,Second hand,0.03,0.01,92.4,No
+65326,United States,Ukraine,Javelin ATM,anti-tank missile,Missiles,2022,No,5300,Yes,2023,No,Second hand,0.03,0.01,63.6,No
+67423,United States,Ukraine,JDAM-ER,guided glide bomb,Missiles,2023,No,1500,Yes,2023,No,Second hand,0.1,0.04,60,No
+66458,United States,Ukraine,M-60 AVLB,armoured bridgelayer,Armoured vehicles,2023,No,18,Yes,2023,No,Second hand,1,0.4,7.2,No
+66935,unknown supplier(s),Ukraine,M-113,APC,Armoured vehicles,2023,No,50,No,2023,No,Second hand,0.25,0.1,5,No
+66933,unknown supplier(s),Ukraine,AIFV,IFV,Armoured vehicles,2023,No,1,Yes,2023,No,Second hand,0.9,0.36,0.36,No
