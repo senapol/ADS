@@ -2,6 +2,11 @@ import pandas as pd
 import plotly.express as px
 import argparse
 
+## THIS CODE ALLOWS FOR THE PLOTTING OF MILTARY EXPENDITURE OVER TIME
+# USAGE: 'python milex.py -m percapita' FOR PER CAPITA EXPENDITURE
+# 'python milex.py -m constant' or 'python milex.py' FOR CONSTANT EXPENDITURE
+
+
 # Parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-m', '--mode', type=str, default='constant', help='Mode for processing data: constant or percapita')
