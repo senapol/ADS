@@ -1,22 +1,7 @@
 import requests
 import time
-
-class Event:
-    def __init__(self, id, date, district, city, province, latitude, longitude, source, status, credit, categories):
-        self.id = id
-        self.date = date
-        self.district = district
-        self.city = city
-        self.province = province
-        self.latitude = latitude
-        self.longitude = longitude
-        self.source = source
-        self.status = status
-        self.credit = credit
-        self.categories = categories
-
-    def __str__(self):
-        return f'{self.date} - {self.city}, {self.province}'
+import json
+import pandas as pd
 
 def main():
     start_time = time.time()
@@ -30,27 +15,36 @@ def main():
 
     for feature in features:
         try:
-            id = feature['properties']['id']
-            date = feature['properties']['verifiedDate'][:10]
-            url = feature['properties']['url']
-            status = feature['properties']['status']
-            credit = feature['properties']['credit']
-            description = feature['properties']['description']
-            country = feature['properties']['country']
-            province = feature['properties']['province']
-            district = feature['properties']['district']
-            city = feature['properties']['city']
-            latitude = feature['geometry']['coordinates'][0]
-            longitude = feature['geometry']['coordinates'][1]
-            categories = feature['properties']['categories'][:]
+            properties = feature['properties']
+            geometry = feature['geometry']
+            event_data = {
+                'id': properties.get('id', None),
+                'date': properties.get('verifiedDate', '')[:10] if properties.get('verifiedDate') else None,
+                'url': properties.get('url', None),
+                'status': properties.get('status', None),
+                'credit': properties.get('credit', None),
+                'description': properties.get('description', None),
+                'country': properties.get('country', None),
+                'province': properties.get('province', None),
+                'district': properties.get('district', None),
+                'city': properties.get('city', None),
+                'categories': json.dumps(properties.get('categories', [])),  # Convert list to JSON string
+                'latitude': geometry['coordinates'][1] if geometry and 'coordinates' in geometry else None,
+                'longitude': geometry['coordinates'][0] if geometry and 'coordinates' in geometry else None
+            }
 
-            event = Event(id, date, district, city, province, latitude, longitude, url, status, credit, categories)
-            events.append(event)
-            print(f'Event {id} parsed successfully')
+            # event = Event(id, date, district, city, province, latitude, longitude, url, status, credit, categories)
+            events.append(event_data)
+            print(f'Event {event_data["id"]} parsed successfully')
         except Exception as e:
             print(f'Error {e}: Could not parse event')
 
     print(f'Parsed {len(events)} events in {time.time() - start_time} seconds')
+
+    # Save events to file
+    df = pd.DataFrame(events)
+    df.to_csv('events.csv', index=False)
+
 
 if __name__ == '__main__':
     main()
