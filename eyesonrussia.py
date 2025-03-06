@@ -3,7 +3,7 @@ import time
 import json
 import pandas as pd
 
-def main():
+def get_events_data():
     start_time = time.time()
 
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0', 'Accept':'*/*','Content-Type':'application/json'}  
@@ -43,8 +43,14 @@ def main():
 
     # Save events to file
     df = pd.DataFrame(events)
-    df.to_csv('events.csv', index=False)
+    df.to_csv('data/events.csv', index=False)
 
-
+def main():
+    try:
+        df = pd.read_csv('data/events.csv')
+        print(df.head())
+        print(df.columns)
+    except:
+        print('File not found')
 if __name__ == '__main__':
     main()
