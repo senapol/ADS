@@ -1,6 +1,7 @@
-# https://acleddata.com/knowledge-base/codebook/#acled-data-columns-at-a-glance
+# dataset columns explained: https://acleddata.com/knowledge-base/codebook/#acled-data-columns-at-a-glance
 
 import pandas as pd
+import plotly.express as px
 
 def reduce_acled():
     try:
@@ -32,7 +33,6 @@ def reduce_acled():
     available_columns = [col for col in essential_columns if col in df.columns]
     df_reduced = df[available_columns].copy()
 
-    # Convert date for analysis
     df_reduced['event_date'] = pd.to_datetime(df_reduced['event_date'])
 
     output = 'data/ACLED_Ukraine_Reduced.csv'
@@ -55,5 +55,38 @@ missing = df.isnull().sum()
 print(f"Missing values: \n{missing[missing > 0]}")
 print('---------------------')
 event_counts = df['event_type'].value_counts()
-print("\nEvent types:")
+fatalities_by_event = df.groupby('event_type')['fatalities'].sum()
+event_counts = pd.concat([event_counts, fatalities_by_event], axis=1)
+
+print("Event types and fatalities:")
 print(event_counts)
+
+# average fatalities per event
+event_counts['Avg_Fatalities'] = event_counts['fatalities'] / event_counts['count']
+
+# bubble chart of event count vs fataliites by event type
+fig = px.scatter(
+    event_counts.reset_index(),
+    x='count',
+    y='fatalities',
+    size='Avg_Fatalities',
+    color='event_type', 
+    hover_name='event_type',
+    text='event_type',
+    log_x=True,  # Use log scale if counts vary widely
+    log_y=True,  # Use log scale if fatalities vary widely
+    size_max=60
+)
+
+fig.update_layout(
+    title="Event Counts vs. Fatalities by Event Type",
+    xaxis_title="Number of Events (log scale)",
+    yaxis_title="Total Fatalities (log scale)",
+    height=600,
+    width=900,
+    showlegend=False
+)
+
+fig.update_traces(textposition='top center')
+
+fig.show()

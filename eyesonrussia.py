@@ -11,6 +11,7 @@ def get_events_data():
     response = requests.get(map_url, headers=headers).json()
 
     features = response['features']
+    print(features[0])
     events = []
 
     for feature in features:
@@ -33,7 +34,6 @@ def get_events_data():
                 'longitude': geometry['coordinates'][0] if geometry and 'coordinates' in geometry else None
             }
 
-            # event = Event(id, date, district, city, province, latitude, longitude, url, status, credit, categories)
             events.append(event_data)
             print(f'Event {event_data["id"]} parsed successfully')
         except Exception as e:
@@ -41,16 +41,48 @@ def get_events_data():
 
     print(f'Parsed {len(events)} events in {time.time() - start_time} seconds')
 
-    # Save events to file
+    # save events to file
     df = pd.DataFrame(events)
     df.to_csv('data/events.csv', index=False)
 
 def main():
-    try:
-        df = pd.read_csv('data/events.csv')
-        print(df.head())
-        print(df.columns)
-    except:
-        print('File not found')
+    # try:
+    #     df = pd.read_csv('data/events.csv')
+    #     print(df.head())
+    #     print(df.columns)
+    #     print()
+    # except:
+    #     print('File not found')
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0', 'Accept':'*/*','Content-Type':'application/json'}  
+    map_url = "https://eyesonrussia.org/events.geojson"
+    response = requests.get(map_url, headers=headers).json()
+
+    features = response['features']
+    print(features[0]['properties'].keys())
+    print(features[0]['geometry'].keys())
+    for key in features[0]['properties'].keys():
+        print(f'key: {key}: {features[0]["properties"][key]}')
+
+    for key in features[0]['geometry'].keys():
+        print(f'key: {key}: {features[0]["geometry"][key]}')
+
+    categories = []
+    descriptions = []
+    for feature in features:
+        category = feature['properties'].get('categories', [])
+        description = feature['properties'].get('description', None)
+        if len(category) > 1:
+            for cat in category:
+                if cat not in categories:
+                    categories.append(cat)
+        else:
+            if category not in categories:
+                categories.append(category)
+        # if description not in descriptions:
+        #     descriptions.append(description)
+
+    print(f'Categories: {categories}')
+    print(f'Number of categories: {len(categories)}')
+    # print(f'Description: {descriptions}')
 if __name__ == '__main__':
     main()
