@@ -5,10 +5,7 @@ import matplotlib.pyplot as plt
 fig_dir = "Figures"
 os.makedirs(fig_dir, exist_ok=True)
 
-
-
-
-file_path = "data/UkraineTracker.xlsx"  # Update with your file path
+file_path = "data/UkraineTracker.xlsx"
 xls = pd.ExcelFile(file_path)
 df_main_data = pd.read_excel(xls, sheet_name="Bilateral Assistance, MAIN DATA")
 df_main_data["announcement_date"] = pd.to_datetime(df_main_data["announcement_date"], errors='coerce')
@@ -23,7 +20,7 @@ aid_per_category = df_main_data["aid_type_general"].value_counts()
 df_main_data["year_month"] = df_main_data["announcement_date"].dt.to_period("M")
 aid_per_month = df_main_data["year_month"].value_counts().sort_index()
 
-# Plot each graph
+
 plt.figure(figsize=(10, 5))
 aid_per_country.plot(kind="bar")
 plt.title("Number of Aids per Country")
