@@ -14,10 +14,10 @@ df = pd.read_excel(xls, sheet_name=main_data_sheet)
 category_keywords = {
     "Air Defense": ["missile", "air defense", "anti-aircraft", "radar", "patriot"],
     "Ground Combat": ["tank", "armored vehicle", "infantry", "rifle", "combat"],
-    "Artillery & Heavy Weapons": ["howitzer", "rocket launcher", "artillery", "mortar", "cannon"],
+    "Artillery & Heavy Weapons": ["howitzer", "rocket launcher", "artillery", "mortar", "cannon", "heavy", "carrier", "armored", "vehicle", "arm"],
     "Ammunition & Explosives": ["ammunition", "grenade", "explosives", "munition"],
     "Logistics & Support": ["transport", "medical", "fuel", "supplies", "logistics"],
-    "Humanitarian Aid": ["humanitarian", "food", "medical aid", "assistance", "relief"],
+    "Humanitarian Aid": ["humanitarian", "food", "medical aid", "assistance", "relief", "ambulance"],
     "Financial & Economic Aid": ["loan", "billion", "million", "eur", "usd", "economic", "budget", "fund allocation", "mfa", "financial package", "economic support"],
     "Training & Advisory": ["training", "instructor", "advisors", "exercise", "education"],
     "Fighter Jets & Airforce": ["fighter jet", "mig", "f-16", "aircraft", "helicopter", "jet", "bomber"],
