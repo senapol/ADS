@@ -5,6 +5,8 @@ import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+from scipy.spatial import KDTree
+import numpy as np
 
 def create_combined_events():
     acled_df = pd.read_csv('data/ACLED_Ukraine_Reduced.csv')
@@ -284,6 +286,49 @@ def visualise_map():
     # save to HTML
     fig.write_html("Ukraine_Conflict_Map.html")
 
+def calculate_event_density(df, date, radius=20):
+    print('Calculating event density')
+
+    prev_events = df[df['date'] <= date].copy()
+
+    coords = prev_events[['latitude', 'longitude']].values
+    print('Calculating KDTree')
+    tree = KDTree(coords)
+    print('Calculating density')
+    density = []
+    for i, row in prev_events.iterrows():
+        point = np.array([row['latitude'], row['longitude']])
+        print(f'Calculating density for point {point}')
+
+        neighbours = tree.query_ball_point(point, radius/111.0) # 1 degree is approx 111 km
+        density.append(len(neighbours))
+    
+    return density
+
+def extract_frontline(df, dates, method='dbscan'): # density based spatial clustering of applications with noise
+    print('Extracting frontline')
+
+    front_lines = {}
+
+    for date in dates:
+        print(f'Extracting frontline for {date}')
+        
+        events = df[df['date'] <= date].copy()
+
+        if method == 'dbscan':
+            
+            from sklearn.cluster import DBSCAN
+
+            coords = events[['latitude', 'longitude']].values
+
+            db = DBSCAN(eps=0.1, min_samples=5).fit(coords)
+
+            events['cluster'] = db.labels_
+
+            front_line = process_clusters(events)
+
+        return front_lines
+
 def model():
     print('Creating model..')
 
@@ -305,7 +350,14 @@ def model():
     df['week'] = df['date'].dt.isocalendar().week
     df['day_of_week'] = df['date'].dt.dayofweek # Mon-Sun: 0-6
 
+    invasion_date = pd.to_datetime('2022-02-24')
+    df['days_since_invasion'] = (df['date'] - invasion_date).dt.days
+
+    df['event_density'] = calculate_event_density(df, df['date'].max())
+
+
     print('data in time series:')
     print(df.sample(10))
+
 
 model()
