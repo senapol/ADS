@@ -8,6 +8,14 @@ import plotly.graph_objects as go
 from scipy.spatial import KDTree
 import numpy as np
 
+from sklearn.cluster import DBSCAN
+# from sklearn.preprocessing import PolynomialFeatures
+# from sklearn.linear_model import LinearRegression
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from scipy.signal import savgol_filter
+import numpy as np
+
 def create_combined_events():
     acled_df = pd.read_csv('data/ACLED_Ukraine_Reduced.csv')
     eor_df = pd.read_csv('data/events.csv')
@@ -69,6 +77,74 @@ def create_combined_events():
     print(combined_df.head())
 
     combined_df.to_csv('data/combined_events.csv', index=False)
+
+def calculate_event_density(df, date, radius=20):
+    print('Calculating event density')
+
+    prev_events = df[df['date'] <= date].copy()
+
+    coords = prev_events[['latitude', 'longitude']].values
+    print('Calculating KDTree')
+    tree = KDTree(coords)
+    print('Calculating density')
+    density = []
+    for i, row in prev_events.iterrows():
+        point = np.array([row['latitude'], row['longitude']])
+        print(f'Calculating density for point {point}')
+
+        neighbours = tree.query_ball_point(point, radius/111.0) # 1 degree is approx 111 km
+        density.append(len(neighbours))
+    
+    return density
+
+def extract_frontline(df, date, method='dbscan'): # density based spatial clustering of applications with noise'''
+
+    # https://hogonext.com/how-to-combine-clustering-with-regression-for-prediction/
+    # https://www.jstor.org/stable/20441166
+    print(f'Extracting frontline for {date}')
+    
+    events = df[df['date'] <= date].copy()
+    coords = events[['latitude', 'longitude']].values
+
+    print('Using DBSCAN for clustering')
+    clustering = DBSCAN(eps=0.1, min_samples=5).fit(coords)
+
+    events['cluster'] = clustering.labels_
+
+    frontlines = {}
+
+    for cluster_id in sorted(set(clustering.labels_)):
+        if cluster_id == -1: # noise
+            continue
+        
+        cluster_points = events[events['cluster'] == cluster_id]
+
+        if len(cluster_points) < 10: # not enough points to fit a model
+            continue
+
+        print('Random forest regression model to extract front line')
+
+        n_estimators = 100
+        X = events['longitude'].values.reshape(-1,1)
+        y = events['latitude'].values
+
+        #train RFR model
+        rf_model = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
+        rf_model.fit(X, y)
+
+        x_dense = np.linspace(X.min(), X.max(), 200).reshape(-1, 1)
+
+        y_pred = rf_model.predict(x_dense)
+
+        y_smooth = savgol_filter(y_pred, window_length=15, polyorder=3)
+
+        frontline = np.column_stack((x_dense.flatten(), y_smooth))
+        frontlines[date] = frontline
+
+    if method == 'kde': # kernel density estimation
+        pass
+
+    return frontlines
 
 
 def visualise_map():
@@ -140,6 +216,13 @@ def visualise_map():
         fig.add_trace(trace)
 
     frames = []
+
+    print('Calculating frontlines for each month')
+
+    frontlines_by_month = {}
+
+    sample_months=sorted(df['month_year'].unique())[::3] # every 3 months
+
 
     for month_year in sorted(df['month_year'].unique()):
         # get frames for this month from both figs
@@ -285,49 +368,6 @@ def visualise_map():
     print('saving to html')
     # save to HTML
     fig.write_html("Ukraine_Conflict_Map.html")
-
-def calculate_event_density(df, date, radius=20):
-    print('Calculating event density')
-
-    prev_events = df[df['date'] <= date].copy()
-
-    coords = prev_events[['latitude', 'longitude']].values
-    print('Calculating KDTree')
-    tree = KDTree(coords)
-    print('Calculating density')
-    density = []
-    for i, row in prev_events.iterrows():
-        point = np.array([row['latitude'], row['longitude']])
-        print(f'Calculating density for point {point}')
-
-        neighbours = tree.query_ball_point(point, radius/111.0) # 1 degree is approx 111 km
-        density.append(len(neighbours))
-    
-    return density
-
-def extract_frontline(df, dates, method='dbscan'): # density based spatial clustering of applications with noise
-    print('Extracting frontline')
-
-    front_lines = {}
-
-    for date in dates:
-        print(f'Extracting frontline for {date}')
-        
-        events = df[df['date'] <= date].copy()
-
-        if method == 'dbscan':
-            
-            from sklearn.cluster import DBSCAN
-
-            coords = events[['latitude', 'longitude']].values
-
-            db = DBSCAN(eps=0.1, min_samples=5).fit(coords)
-
-            events['cluster'] = db.labels_
-
-            front_line = process_clusters(events)
-
-        return front_lines
 
 def model():
     print('Creating model..')
