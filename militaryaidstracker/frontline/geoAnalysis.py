@@ -1,40 +1,34 @@
-import numpy as np
-from geopy.distance import geodesic
 import pandas as pd
+import numpy as np
+from math import radians, sin, cos, sqrt, atan2
 
-file_path_events = "data/filtered_frontline_events.csv"
-df_events = pd.read_csv(file_path_events)
+# Load the dataset
+file_path = "data/cleaned/cleaned_frontline_events.csv"
+df = pd.read_csv(file_path)
 
-# Check if the dataset now contains data
-df_events.info(), df_events.head()
+# Convert 'date' to datetime format and sort by date
+df['date'] = pd.to_datetime(df['date'])
+df = df.sort_values(by='date').reset_index(drop=True)
 
-# Convert 'date' to datetime format
-df_events['date'] = pd.to_datetime(df_events['date'])
+# Haversine function to compute distance between two lat/lon points
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0  # Earth's radius in km
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
 
-# Filter for relevant frontline events (Battles & Explosions)
-frontline_events = df_events[df_events['event_type'].isin(["Battles", "Explosions/Remote violence"])]
+df['prev_latitude'] = df['latitude'].shift(1)
+df['prev_longitude'] = df['longitude'].shift(1)
+df['movement_km'] = df.apply(lambda row: haversine(row['prev_latitude'], row['prev_longitude'],
+                                                   row['latitude'], row['longitude'])
+                             if not pd.isnull(row['prev_latitude']) else np.nan, axis=1)
 
-# Sort by date
-frontline_events = frontline_events.sort_values(by="date")
 
-# Group by date and compute the daily frontline centroid (average lat/lon)
-frontline_movement = frontline_events.groupby('date').agg(
-    avg_latitude=('latitude', 'mean'),
-    avg_longitude=('longitude', 'mean'),
-    event_count=('event_type', 'count')  # Number of battle-related events per day
-).reset_index()
+df.drop(columns=['prev_latitude', 'prev_longitude'], inplace=True)
+output_file_path = "data/cleaned/frontline_movement_with_distance.csv"
+df.to_csv(output_file_path, index=False)
 
-# Compute movement distance (distance between successive frontlines)
-def compute_distance(lat1, lon1, lat2, lon2):
-    """Calculate geographical distance in km between two lat/lon coordinates."""
-    if np.isnan(lat1) or np.isnan(lon1) or np.isnan(lat2) or np.isnan(lon2):
-        return np.nan
-    return geodesic((lat1, lon1), (lat2, lon2)).km
-
-# Apply distance computation to each row (comparing with previous day)
-frontline_movement['distance_moved_km'] = frontline_movement.apply(
-    lambda row: compute_distance(
-        row['avg_latitude'], row['avg_longitude'],
-        frontline_movement['avg_latitude'].shift(1), frontline_movement['avg_longitude'].shift(1)
-    ), axis=1
-)
+print(f"File saved successfully: {output_file_path}")
