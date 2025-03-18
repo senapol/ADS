@@ -73,14 +73,18 @@ def aggregate_tot_value_eur(group):
         # Sum all item_value_estimate_USD
         total_usd = float(group["item_value_estimate_USD"].sum(min_count=1))
         # Convert that sum to EUR
-        tot_eur = int(total_usd * exchange_rates["USD"]) if not np.isnan(total_usd) else np.nan
+        tot_eur = total_usd * exchange_rates["USD"] if not np.isnan(total_usd) else np.nan
 
     group.loc[:, "source_reported_value_EUR"] = tot_eur
 
     return group
+    # # Return a 1-row Series with your final total
+    # return pd.Series({
+    #     "tot_activity_value_EUR": tot_eur
+    # })
 
 # # Apply the function to each group
-aggregated_df = df.groupby("activity_id").apply(aggregate_tot_value_eur) 
+aggregated_df = df.groupby("activity_id").apply(aggregate_tot_value_eur)  # .reset_index()
 
 print(aggregated_df.head(50).to_string())
 

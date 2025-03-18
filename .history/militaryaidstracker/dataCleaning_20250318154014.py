@@ -78,6 +78,10 @@ def aggregate_tot_value_eur(group):
     group.loc[:, "source_reported_value_EUR"] = tot_eur
 
     return group
+    # # Return a 1-row Series with your final total
+    # return pd.Series({
+    #     "tot_activity_value_EUR": tot_eur
+    # })
 
 # # Apply the function to each group
 aggregated_df = df.groupby("activity_id").apply(aggregate_tot_value_eur) 

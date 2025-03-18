@@ -1,0 +1,64 @@
+import pandas as pd
+# import ace_tools as tools
+
+# frontline_events_path = "data/filtered_frontline_events.csv"
+# frontline_df = pd.read_csv(frontline_events_path)
+
+aid_data_path = "data/UkraineTracker_Categorized_OnlyClassified.xlsx"
+aid_df = pd.read_excel(aid_data_path, sheet_name=None)  # Load all sheets
+
+exchange_rates = {
+    "AUD": 0.64,   # 1 AUD ~ 0.64 EUR
+    "USD": 0.93,   # 1 USD ~ 0.93 EUR
+    "EUR": 1.00,   # Reference currency
+    "BGN": 0.51,   # 1 BGN ~ 0.51 EUR
+    "CAD": 0.70,   # 1 CAD ~ 0.70 EUR
+    "CNY": 0.13,   # 1 CNY ~ 0.13 EUR
+    "HRK": 0.13,   # 1 HRK ~ 0.13 EUR
+    "CZK": 0.042,  # 1 CZK ~ 0.042 EUR
+    "DKK": 0.13,   # 1 DKK ~ 0.13 EUR
+    "HUF": 0.0026, # 1 HUF ~ 0.0026 EUR
+    "ISK": 0.0068, # 1 ISK ~ 0.0068 EUR
+    "JPY": 0.0075, # 1 JPY ~ 0.0075 EUR
+    "GBP": 1.16,   # 1 GBP ~ 1.16 EUR
+    "NZD": 0.59,   # 1 NZD ~ 0.59 EUR
+    "NOK": 0.088,  # 1 NOK ~ 0.088 EUR
+    "PLN": 0.21,   # 1 PLN ~ 0.21 EUR
+    "KRW": 0.00077,# 1 KRW ~ 0.00077 EUR
+    "RON": 0.20,   # 1 RON ~ 0.20 EUR
+    "SEK": 0.088,  # 1 SEK ~ 0.088 EUR
+    "CHF": 1.02    # 1 CHF ~ 1.02 EUR
+}
+
+# frontline_df['date'] = pd.to_datetime(frontline_df['date'], errors='coerce')
+# frontline_df = frontline_df.drop_duplicates().reset_index(drop=True)
+# frontline_cleaned = frontline_df[['date', 'latitude', 'longitude', 'event_type', 'location', 'admin1', 'description']]
+aid_main_df = aid_df['Filtered Data']
+# aid_main_df['announcement_date'] = pd.to_datetime(aid_main_df['announcement_date'], errors='coerce')
+# aid_main_df['source_reported_value'] = pd.to_numeric(aid_main_df['source_reported_value'], errors='coerce')
+
+aid_cleaned = aid_main_df[['announcement_date', 'donor', 'aid_type_general', 'aid_type_specific',
+                           'explanation', 'reporting_currency', 'source_reported_value', 'classified_category', 'measure']]
+
+print(aid_cleaned['reporting_currency'].unique())
+
+# aid_cleaned = aid_cleaned.dropna(subset=['announcement_date', 'aid_type_specific', 'source_reported_value'])
+# aid_cleaned['date'] = pd.to_datetime(aid_cleaned['announcement_date'])  # Ensure 'date' column is in datetime format
+# aid_cleaned = aid_cleaned.sort_values(by='date')  # Sort by date in ascending order
+# aid_cleaned = aid_cleaned.reset_index(drop=True)  # Reset index after sorting
+
+# # frontline_cleaned = frontline_cleaned.dropna(subset=['date', 'event_type'])
+
+# # frontline_cleaned = frontline_cleaned.reset_index(drop=True)
+# aid_cleaned = aid_cleaned.reset_index(drop=True)
+
+# # Save the cleaned datasets as new files
+
+# # cleaned_frontline_path = "data/cleaned/cleaned_frontline_events.csv"
+# cleaned_aid_path = "data/cleaned/cleaned_military_aid.csv"
+
+# # Save cleaned datasets as CSV files
+# # frontline_cleaned.to_csv(cleaned_frontline_path, index=False)
+# aid_cleaned.to_csv(cleaned_aid_path, index=False)
+
+# cleaned_frontline_path, cleaned_aid_path

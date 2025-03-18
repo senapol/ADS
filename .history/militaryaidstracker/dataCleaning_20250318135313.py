@@ -34,68 +34,29 @@ exchange_rates = {
 # frontline_df['date'] = pd.to_datetime(frontline_df['date'], errors='coerce')
 # frontline_df = frontline_df.drop_duplicates().reset_index(drop=True)
 # frontline_cleaned = frontline_df[['date', 'latitude', 'longitude', 'event_type', 'location', 'admin1', 'description']]
-aid_main_df = aid_df['Filtered Data'].head(100).copy()
+aid_main_df = aid_df['Filtered Data'].head(300)
 # aid_main_df['announcement_date'] = pd.to_datetime(aid_main_df['announcement_date'], errors='coerce')
 # aid_main_df['source_reported_value'] = pd.to_numeric(aid_main_df['source_reported_value'], errors='coerce')
 
-df = aid_main_df[['activity_id', 'announcement_date', 'donor', 'aid_type_general', 'aid_type_specific', 'item_value_estimate_USD',
-                        'reporting_currency', 'source_reported_value', 'classified_category', 'measure']].copy() # 'explanation'
+df = aid_main_df[['announcement_date', 'donor', 'aid_type_general', 'aid_type_specific',
+                           'explanation', 'reporting_currency', 'source_reported_value', 'classified_category', 'measure']]
 
-# print(df['reporting_currency'].unique())
+print(df['reporting_currency'].unique())
 
 def convert_to_eur(amount, currency):
     """Helper that multiplies amount by the relevant exchange rate."""
-    if pd.isna(amount) or amount == 'Not given' or pd.isna(currency):
+    if pd.isna(amount) or amount == 'Not given' or amount.isdifit pd.isna(currency):
         return np.nan
     rate = exchange_rates.get(currency)
-    # print(rate, amount)
+    print(rate, amount)
     return amount * rate
 
-df.loc[:, "source_reported_value_EUR"] = df.apply(
+df["source_reported_value_EUR"] = df.apply(
     lambda row: convert_to_eur(row["source_reported_value"], row["reporting_currency"]),
     axis=1
 )
 
-# print(df.head(50))
-
-def aggregate_tot_value_eur(group):
-    """
-    - If there's a non-null source_reported_value_EUR in the group, use that (assuming
-      it applies to the entire activity).
-    - Otherwise, sum item_value_estimate_USD across the group and convert that sum to EUR.
-    """
-    # Check any non-null source_reported_value_EUR
-    non_null_vals = group["source_reported_value_EUR"].dropna()
-    if not non_null_vals.empty:
-        # Use the first non-null (or you could take max if you prefer)
-        tot_eur = non_null_vals.iloc[0]
-    else:
-        # Sum all item_value_estimate_USD
-        total_usd = float(group["item_value_estimate_USD"].sum(min_count=1))
-        # Convert that sum to EUR
-        tot_eur = int(total_usd * exchange_rates["USD"]) if not np.isnan(total_usd) else np.nan
-
-    group.loc[:, "source_reported_value_EUR"] = tot_eur
-
-    return group
-
-# # Apply the function to each group
-aggregated_df = df.groupby("activity_id").apply(aggregate_tot_value_eur) 
-
-print(aggregated_df.head(50).to_string())
-
-# # -----------------------------------------------------------------------------
-# # 5. (Optional) Merge back or keep as your final table
-# # -----------------------------------------------------------------------------
-# # If you need just one final DataFrame with activity_id and tot_activity_value_EUR:
-# final_df = aggregated_df.copy()
-
-# # Display results
-# print("Original DF:")
-# print(df, "\n")
-# print("Aggregated DF (one row per activity_id):")
-# print(final_df)
-
+df.head(50)
 # aid_cleaned = aid_cleaned.dropna(subset=['announcement_date', 'aid_type_specific', 'source_reported_value'])
 # aid_cleaned['date'] = pd.to_datetime(aid_cleaned['announcement_date'])  # Ensure 'date' column is in datetime format
 # aid_cleaned = aid_cleaned.sort_values(by='date')  # Sort by date in ascending order
@@ -156,5 +117,39 @@ print(aggregated_df.head(50).to_string())
 # # -----------------------------------------------------------------------------
 # # 4. Group by activity_id & create final tot_activity_value_EUR
 # # -----------------------------------------------------------------------------
+# def aggregate_tot_value_eur(group):
+#     """
+#     - If there's a non-null source_reported_value_EUR in the group, use that (assuming
+#       it applies to the entire activity).
+#     - Otherwise, sum item_value_estimate_USD across the group and convert that sum to EUR.
+#     """
+#     # Check any non-null source_reported_value_EUR
+#     non_null_vals = group["source_reported_value_EUR"].dropna()
+#     if not non_null_vals.empty:
+#         # Use the first non-null (or you could take max if you prefer)
+#         tot_eur = non_null_vals.iloc[0]
+#     else:
+#         # Sum all item_value_estimate_USD
+#         total_usd = group["item_value_estimate_USD"].sum(min_count=1)
+#         # Convert that sum to EUR
+#         tot_eur = total_usd * exchange_rates["USD"] if not np.isnan(total_usd) else np.nan
 
+#     # Return a 1-row Series with your final total
+#     return pd.Series({
+#         "tot_activity_value_EUR": tot_eur
+#     })
 
+# # Apply the function to each group
+# aggregated_df = df.groupby("activity_id").apply(aggregate_tot_value_eur).reset_index()
+
+# # -----------------------------------------------------------------------------
+# # 5. (Optional) Merge back or keep as your final table
+# # -----------------------------------------------------------------------------
+# # If you need just one final DataFrame with activity_id and tot_activity_value_EUR:
+# final_df = aggregated_df.copy()
+
+# # Display results
+# print("Original DF:")
+# print(df, "\n")
+# print("Aggregated DF (one row per activity_id):")
+# print(final_df)
