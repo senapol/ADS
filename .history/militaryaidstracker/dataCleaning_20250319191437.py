@@ -82,7 +82,7 @@ invalid_mask = df['source_reported_value_EUR'].isna() & df['item_value_estimate_
 # Count how many rows is that
 both_null_count = df[invalid_mask].shape[0]
 print("Rows with both columns null:", both_null_count)
-df.drop(columns={"item_value_estimate_USD", "source_reported_value"}, inplace=True)
+df.drop(columns="item_value_estimate_USD", inplace=True)
 
 # Keep the rows that are not invalid
 df = df[~invalid_mask]

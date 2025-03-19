@@ -5,7 +5,6 @@ file_path = "data/UkraineTracker.xlsx"
 xls = pd.ExcelFile(file_path)
 aid_df = pd.read_excel(xls, sheet_name="Bilateral Assistance, MAIN DATA")
 
-# Got the exchange rates by getting the unique currencies
 exchange_rates = {
     "AUD": 0.64,   # 1 AUD ~ 0.64 EUR
     "USD": 0.93,   # 1 USD ~ 0.93 EUR
@@ -29,14 +28,18 @@ exchange_rates = {
     "CHF": 1.02    # 1 CHF ~ 1.02 EUR
 }
 
-df = aid_df[['activity_id', 'announcement_date', 'donor', 'item_value_estimate_USD', 'explanation', 
-                    'reporting_currency', 'source_reported_value', 'measure']].copy() # , 'classified_category'
+# aid_main_df['announcement_date'] = pd.to_datetime(aid_main_df['announcement_date'], errors='coerce')
+# aid_main_df['source_reported_value'] = pd.to_numeric(aid_main_df['source_reported_value'], errors='coerce')
 
+df = aid_df[['activity_id', 'announcement_date', 'donor', 'aid_type_general', 'aid_type_specific', 'item_value_estimate_USD',
+                        'reporting_currency', 'source_reported_value', 'measure']].copy() # 'explanation', 'classified_category'
+
+print(df.dtypes)
 print(df.head(30))
 
 df['item_value_estimate_USD'] = df['item_value_estimate_USD'].replace({'.': np.nan, 'No price': np.nan}, regex=False)
 
-# -------
+
 def convert_to_eur(amount, currency):
     """Helper that multiplies amount by the relevant exchange rate."""
     if pd.isna(amount) or amount == 'Not given' or amount == 'Not Given' or pd.isna(currency):
@@ -51,7 +54,6 @@ df.loc[:, "source_reported_value_EUR"] = df.apply(
     axis=1
 )
 
-# --------
 def aggregate_tot_value_eur(group):
     """
     - If there's a non-null source_reported_value_EUR in the group, use that (assuming
@@ -72,27 +74,17 @@ def aggregate_tot_value_eur(group):
 
     return group.head(1)
 
-# If there isn't a source_reported_value_EUR sum all the item_value_estimate_USD by the activity_id 
-# and return just one row for every group since they have the same activity_id
+# If there isn't a source_reported_value_EUR sum all the item_value_estimate_USD 
 df = df.groupby("activity_id").apply(aggregate_tot_value_eur)
+df.drop(columns="item_value_estimate_USD", inplace=True)
 
-# Identify rows with no reported and item values
-invalid_mask = df['source_reported_value_EUR'].isna() & df['item_value_estimate_USD'].isna()
-
-# Count how many rows is that
-both_null_count = df[invalid_mask].shape[0]
-print("Rows with both columns null:", both_null_count)
-df.drop(columns={"item_value_estimate_USD", "source_reported_value"}, inplace=True)
-
-# Keep the rows that are not invalid
-df = df[~invalid_mask]
-
-# ---------
-# First attempt: Convert the announcement_date to datetime, with null set when there is an error with the coerce parameter
+# First attempt: Convert the announcement_date to datetime, with errors coerce
 df["announcement_date_converted"] = pd.to_datetime(df["announcement_date"], errors='coerce')
+
 # Identify rows where the conversion failed (NaT in the converted column)
 invalid_mask = df["announcement_date_converted"].isna()
-# For those rows, clean the string (remove characters and whitespaces), then re-convert to datetime
+
+# For those rows, clean the string (remove "until " and whitespaces), then re-convert to datetime
 df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
     df.loc[invalid_mask, "announcement_date"]
     .astype(str)
@@ -100,10 +92,9 @@ df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
     .str.replace(r'\s+', '', regex=True),
     errors='ignore'
 )
-# Drop the helping column
+
 df.drop(columns="announcement_date_converted", inplace=True)
 
-# I checked the values that were not converted to date and changed them manually
 dict_invalid = {"ESM17" : "6/30/2023", "ESM7" : "6/30/2022", "FRM13" : "01/01/2023", "JPH10" : "1/1/2023", "LUH8" : "1/1/2024", "TRH3" : "3/20/2022"}
 for (key, value) in dict_invalid.items():
     df.loc[df['activity_id'] == key, 'announcement_date'] = value
@@ -112,12 +103,31 @@ for (key, value) in dict_invalid.items():
 df["announcement_date"] = pd.to_datetime(df["announcement_date"], errors='coerce')
 df = df.dropna(subset=['announcement_date'])
 
-df = df.sort_values(by='announcement_date')
+invalid_mask = df['source_reported_value_EUR'].isna() & df['item_value_estimate_USD'].isna()
+
+both_null_count = df[invalid_mask].shape[0]
+print("Rows with both columns null:", both_null_count)
+
+df = df[~invalid_mask]
 
 print(df.count())
-print(df.head(20))
+
+# # Display results
+# print("Original DF:")
+# print(df, "\n")
+# print("Aggregated DF (one row per activity_id):")
+# print(final_df)
+
+# aid_cleaned = aid_cleaned.dropna(subset=['announcement_date', 'aid_type_specific', 'source_reported_value'])
+# aid_cleaned['date'] = pd.to_datetime(aid_cleaned['announcement_date'])  # Ensure 'date' column is in datetime format
+# aid_cleaned = aid_cleaned.sort_values(by='date')  # Sort by date in ascending order
+# aid_cleaned = aid_cleaned.reset_index(drop=True)  # Reset index after sorting
+
+# aid_cleaned = aid_cleaned.reset_index(drop=True)
 
 # # Save the cleaned datasets as new files
-cleaned_aid_path = "data/cleaned/military_aid_NEW.csv"
+# cleaned_aid_path = "data/cleaned/cleaned_military_aid.csv"
 
-df.to_csv(cleaned_aid_path, index=False)
+# aid_cleaned.to_csv(cleaned_aid_path, index=False)
+
+# cleaned_frontline_path, cleaned_aid_path

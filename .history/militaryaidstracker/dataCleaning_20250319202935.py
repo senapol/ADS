@@ -115,9 +115,9 @@ df = df.dropna(subset=['announcement_date'])
 df = df.sort_values(by='announcement_date')
 
 print(df.count())
-print(df.head(20))
+print(df.head(10))
 
 # # Save the cleaned datasets as new files
-cleaned_aid_path = "data/cleaned/military_aid_NEW.csv"
+# cleaned_aid_path = "data/cleaned/military_aid_NEW.csv"
 
-df.to_csv(cleaned_aid_path, index=False)
+# df.to_csv(cleaned_aid_path, index=False)
