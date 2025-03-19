@@ -5,9 +5,8 @@ import numpy as np
 # frontline_events_path = "data/filtered_frontline_events.csv"
 # frontline_df = pd.read_csv(frontline_events_path)
 
-file_path = "data/UkraineTracker.xlsx"
-xls = pd.ExcelFile(file_path)
-aid_df = pd.read_excel(xls, sheet_name="Bilateral Assistance, MAIN DATA")
+aid_data_path = "data/UkraineTracker_Categorized_OnlyClassified.xlsx"
+aid_df = pd.read_excel(aid_data_path, sheet_name=None)  # Load all sheets
 
 exchange_rates = {
     "AUD": 0.64,   # 1 AUD ~ 0.64 EUR
@@ -35,34 +34,20 @@ exchange_rates = {
 # frontline_df['date'] = pd.to_datetime(frontline_df['date'], errors='coerce')
 # frontline_df = frontline_df.drop_duplicates().reset_index(drop=True)
 # frontline_cleaned = frontline_df[['date', 'latitude', 'longitude', 'event_type', 'location', 'admin1', 'description']]
-aid_main_df = aid_df
+aid_main_df = aid_df['Filtered Data']
 # aid_main_df['announcement_date'] = pd.to_datetime(aid_main_df['announcement_date'], errors='coerce')
 # aid_main_df['source_reported_value'] = pd.to_numeric(aid_main_df['source_reported_value'], errors='coerce')
 
 df = aid_main_df[['activity_id', 'announcement_date', 'donor', 'aid_type_general', 'aid_type_specific', 'item_value_estimate_USD',
-                        'reporting_currency', 'source_reported_value', 'measure']].copy() # 'explanation', 'classified_category'
+                        'reporting_currency', 'source_reported_value', 'classified_category', 'measure']].copy() # 'explanation'
 
-print(df.dtypes)
-print(df.head(30))
-
-# For those rows, clean the string (remove "until " and whitespaces), then re-convert to datetime
-# df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
-#     df.loc[invalid_mask, "announcement_date"]
-#     .astype(str)
-#     .str.replace(r'[A-Za-z]', '', regex=True) # .str.replace("until ", "", regex=False)
-#     .str.replace(r'\s+', '', regex=True),
-#     errors='coerce'
-# )
-
-# invalid_mask = df["announcement_date"].isna()
-# (Optional) You can remove the temporary column if you don't need it anymore:
-
-
-# df["announcement_date_converted"] = pd.to_datetime(df["announcement_date"], errors='coerce')
-# invalid_dates = df.loc[df['announcement_date_converted'].isna(), 'announcement_date'].astype(str).str.replace("until ", "", regex=False).str.replace(r'\s+', '', regex=True)
-# invalid_dates = pd.to_datetime(invalid_dates, errors='coerce')
-
+df['announcement_date'] = df['announcement_date'].astype(str).str.replace("until ", "", regex=False)
+df["announcement_date"] = pd.to_datetime(df["announcement_date"], errors='coerce')
 df['item_value_estimate_USD'] = df['item_value_estimate_USD'].replace({'.': np.nan, 'No price': np.nan}, regex=False)
+
+# print(df['reporting_currency'].unique())
+
+# print(df['source_reported_value'].unique())
 
 def convert_to_eur(amount, currency):
     """Helper that multiplies amount by the relevant exchange rate."""
@@ -108,36 +93,17 @@ def aggregate_tot_value_eur(group):
     return group.head(1)
 
 # # Apply the function to each group
-df = df.groupby("activity_id").apply(aggregate_tot_value_eur)
+aggregated_df = df.groupby("activity_id").apply(aggregate_tot_value_eur)
 
-# First attempt: Convert the announcement_date to datetime, with errors coerce
-df["announcement_date_converted"] = pd.to_datetime(df["announcement_date"], errors='coerce')
+print(aggregated_df.count())
+print(aggregated_df)
 
-# Identify rows where the conversion failed (NaT in the converted column)
-invalid_mask = df["announcement_date_converted"].isna()
 
-# For those rows, clean the string (remove "until " and whitespaces), then re-convert to datetime
-df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
-    df.loc[invalid_mask, "announcement_date"]
-    .astype(str)
-    .str.replace(r'[A-Za-z]', '', regex=True) # .str.replace("until ", "", regex=False)
-    .str.replace(r'\s+', '', regex=True),
-    errors='ignore'
-)
-
-df.drop(columns="announcement_date_converted", inplace=True)
-
-dict_invalid = {"ESM17" : "6/30/2023", "ESM7" : "6/30/2022", "FRM13" : "01/01/2023", "JPH10" : "1/1/2023", "LUH8" : "1/1/2024", "TRH3" : "3/20/2022"}
-for (key, value) in dict_invalid.items():
-    df.loc[df['activity_id'] == key, 'announcement_date'] = value
-
-df["announcement_date"] = pd.to_datetime(df["announcement_date"], errors='coerce')
-df = df.dropna(subset=['announcement_date'])
-
-both_null_count = df[df['source_reported_value_EUR'].isna() & df['item_value_estimate_USD'].isna()].shape[0]
-print("Rows with both columns null:", both_null_count)
-
-print(df.count())
+# # -----------------------------------------------------------------------------
+# # 5. (Optional) Merge back or keep as your final table
+# # -----------------------------------------------------------------------------
+# # If you need just one final DataFrame with activity_id and tot_activity_value_EUR:
+# final_df = aggregated_df.copy()
 
 # # Display results
 # print("Original DF:")
@@ -165,3 +131,45 @@ print(df.count())
 # aid_cleaned.to_csv(cleaned_aid_path, index=False)
 
 # cleaned_frontline_path, cleaned_aid_path
+
+
+# import pandas as pd
+# import numpy as np
+
+# # -----------------------------------------------------------------------------
+# # 1. Toy Exchange Rate Lookup
+# #    In reality, you'd maintain a more complete mapping or dynamically fetch rates.
+# # -----------------------------------------------------------------------------
+# exchange_rates = {
+#     "EUR": 1.0,
+#     "USD": 0.93,  # Example: 1 USD ~ 0.93 EUR
+#     "GBP": 1.16, # Example: 1 GBP ~ 1.16 EUR
+#     # ... add other currencies as needed
+# }
+
+# # -----------------------------------------------------------------------------
+# # 2. Sample DataFrame (as an example)
+# #    Suppose you have columns like:
+# #      - activity_id
+# #      - source_reported_value
+# #      - reporting_currency
+# #      - item_value_estimate_USD
+# # -----------------------------------------------------------------------------
+# data = {
+#     "activity_id": [1, 1, 2, 2, 3],
+#     "source_reported_value": [100_000, None, None, None, 500_000],
+#     "reporting_currency": ["USD", None, None, None, "EUR"],
+#     "item_value_estimate_USD": [None, 5_000, 10_000, 15_000, None],
+# }
+# df = pd.DataFrame(data)
+
+# -----------------------------------------------------------------------------
+# 3. Convert source_reported_value to EUR (where present)
+#    We'll create a new column 'source_reported_value_EUR'
+# -----------------------------------------------------------------------------
+
+# # -----------------------------------------------------------------------------
+# # 4. Group by activity_id & create final tot_activity_value_EUR
+# # -----------------------------------------------------------------------------
+
+

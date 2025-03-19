@@ -132,7 +132,12 @@ for (key, value) in dict_invalid.items():
     df.loc[df['activity_id'] == key, 'announcement_date'] = value
 
 df["announcement_date"] = pd.to_datetime(df["announcement_date"], errors='coerce')
-df = df.dropna(subset=['announcement_date'])
+df["announcement_date"].dropna()
+# Identify rows where the conversion failed (NaT in the converted column)
+# invalid_mask = df["announcement_date"].isna()
+
+# print(df.loc[invalid_mask, "announcement_date"])
+
 
 both_null_count = df[df['source_reported_value_EUR'].isna() & df['item_value_estimate_USD'].isna()].shape[0]
 print("Rows with both columns null:", both_null_count)

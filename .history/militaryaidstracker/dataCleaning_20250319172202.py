@@ -125,14 +125,20 @@ df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
     errors='ignore'
 )
 
+
 df.drop(columns="announcement_date_converted", inplace=True)
 
-dict_invalid = {"ESM17" : "6/30/2023", "ESM7" : "6/30/2022", "FRM13" : "01/01/2023", "JPH10" : "1/1/2023", "LUH8" : "1/1/2024", "TRH3" : "3/20/2022"}
-for (key, value) in dict_invalid.items():
+dict_invalid = {"ESM17" : "6/31/2023", "ESM7" : "6/31/2022", "FRM13" : "01/01/2023", "JPH10" : "1/1/2023", "LUH8" : "1/1/2024", "TRH3" : "3/20/2022"}
+for (key, value) in dict_invalid():
     df.loc[df['activity_id'] == key, 'announcement_date'] = value
 
-df["announcement_date"] = pd.to_datetime(df["announcement_date"], errors='coerce')
-df = df.dropna(subset=['announcement_date'])
+df["announcement_date_converted"] = pd.to_datetime(df["announcement_date"], errors='coerce')
+
+# Identify rows where the conversion failed (NaT in the converted column)
+invalid_mask = df["announcement_date_converted"].isna()
+
+print(df.loc[invalid_mask, "announcement_date"])
+
 
 both_null_count = df[df['source_reported_value_EUR'].isna() & df['item_value_estimate_USD'].isna()].shape[0]
 print("Rows with both columns null:", both_null_count)

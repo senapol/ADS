@@ -45,6 +45,28 @@ df = aid_main_df[['activity_id', 'announcement_date', 'donor', 'aid_type_general
 print(df.dtypes)
 print(df.head(30))
 
+# First attempt: Convert the announcement_date to datetime, with errors coerce
+df["announcement_date_converted"] = pd.to_datetime(df["announcement_date"], errors='coerce')
+
+# Identify rows where the conversion failed (NaT in the converted column)
+invalid_mask = df["announcement_date_converted"].isna()
+
+# For those rows, clean the string (remove "until " and whitespaces), then re-convert to datetime
+df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
+    df.loc[invalid_mask, "announcement_date"]
+    .astype(str)
+    .str.replace(r'[A-Za-z]', '', regex=True) # .str.replace("until ", "", regex=False)
+    .str.replace(r'\s+', '', regex=True),
+    errors='coerce'
+)
+
+df.drop(columns="announcement_date_converted", inplace=True)
+
+df["announcement_date_converted"] = pd.to_datetime(df["announcement_date"], errors='coerce')
+
+# Identify rows where the conversion failed (NaT in the converted column)
+invalid_mask = df["announcement_date_converted"].isna()
+
 # For those rows, clean the string (remove "until " and whitespaces), then re-convert to datetime
 # df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
 #     df.loc[invalid_mask, "announcement_date"]
@@ -55,6 +77,7 @@ print(df.head(30))
 # )
 
 # invalid_mask = df["announcement_date"].isna()
+print(df.loc[invalid_mask, "announcement_date"])
 # (Optional) You can remove the temporary column if you don't need it anymore:
 
 
@@ -108,36 +131,12 @@ def aggregate_tot_value_eur(group):
     return group.head(1)
 
 # # Apply the function to each group
-df = df.groupby("activity_id").apply(aggregate_tot_value_eur)
+aggregated_df = df.groupby("activity_id").apply(aggregate_tot_value_eur)
 
-# First attempt: Convert the announcement_date to datetime, with errors coerce
-df["announcement_date_converted"] = pd.to_datetime(df["announcement_date"], errors='coerce')
-
-# Identify rows where the conversion failed (NaT in the converted column)
-invalid_mask = df["announcement_date_converted"].isna()
-
-# For those rows, clean the string (remove "until " and whitespaces), then re-convert to datetime
-df.loc[invalid_mask, "announcement_date"] = pd.to_datetime(
-    df.loc[invalid_mask, "announcement_date"]
-    .astype(str)
-    .str.replace(r'[A-Za-z]', '', regex=True) # .str.replace("until ", "", regex=False)
-    .str.replace(r'\s+', '', regex=True),
-    errors='ignore'
-)
-
-df.drop(columns="announcement_date_converted", inplace=True)
-
-dict_invalid = {"ESM17" : "6/30/2023", "ESM7" : "6/30/2022", "FRM13" : "01/01/2023", "JPH10" : "1/1/2023", "LUH8" : "1/1/2024", "TRH3" : "3/20/2022"}
-for (key, value) in dict_invalid.items():
-    df.loc[df['activity_id'] == key, 'announcement_date'] = value
-
-df["announcement_date"] = pd.to_datetime(df["announcement_date"], errors='coerce')
-df = df.dropna(subset=['announcement_date'])
-
-both_null_count = df[df['source_reported_value_EUR'].isna() & df['item_value_estimate_USD'].isna()].shape[0]
+both_null_count = aggregated_df[aggregated_df['source_reported_value_EUR'].isna() & aggregated_df['item_value_estimate_USD'].isna()].shape[0]
 print("Rows with both columns null:", both_null_count)
 
-print(df.count())
+print(aggregated_df.count())
 
 # # Display results
 # print("Original DF:")
