@@ -4,3 +4,4 @@ matplotlib
 filterpy
 geopy
 scipy
+geopandas
