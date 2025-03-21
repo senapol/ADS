@@ -233,6 +233,8 @@ weekly_values = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols
 # 2. Sum them row-wise and store in a new column, e.g. "total_value_EUR"
 print(df[cols_to_sum].sum()/1000000000)
 
+
+
 # print(df.loc[df.loc[df['aid_type_general'].astype(str) == "Humanitarian", 'source_reported_value_EUR'].max() == df['source_reported_value_EUR']])
 # print(df.head(30))
 

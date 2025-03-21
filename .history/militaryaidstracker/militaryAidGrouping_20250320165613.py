@@ -60,12 +60,13 @@ for key, value in dict_weapons.items():
 # Make the missing values null
 df['item_value_estimate_USD'] = df['item_value_estimate_USD'].replace({'.': np.nan, 'No price': np.nan}, regex=False)
 
-# explanations = df.loc[~((df['aid_type_general'] == "Humanitarian") | (df['aid_type_general'] == "Financial") | ~(df['item_type'].isna()))]['explanation']
-
-# # Save the cleaned datasets as new files
-# cleaned_aid_path = "data/cleaned/explanations_to_filter.csv"
-
-# explanations.to_csv(cleaned_aid_path, index=False)
+# Make a column for every type and take the item_value estimate in EUROS
+for aid_type in aid_categories:
+    df[aid_type] = np.where(
+        (df["item_type"] == aid_type) & df['item_value_estimate_USD'],
+        df['item_value_estimate_USD'] * exchange_rates['USD'],
+        0
+    )
 
 # Exclude commitment, which are just promises, since the allocations can be a subset of the commitment
 # invalid_mask = (df['measure'] == "Commitment")
@@ -85,37 +86,29 @@ df.loc[:, "source_reported_value_EUR"] = df.apply(
     axis=1
 )
 
-# df.drop(columns={'source_reported_value'}, inplace=True)
-
-# print(df.loc[(df['measure'].astype(str) == 'Commitment') & (df['total_value_dummy'] == 1)])
-
 # --------
-# Create a collumn for each aid category and sum them for each sub group(that has same sub_activity_id)
-# and also sum the the reported source value
-for aid_type in aid_categories:
-    df[aid_type] = np.where(
-        (df["item_type"] == aid_type) & df['item_value_estimate_USD'],
-        df['item_value_estimate_USD'] * exchange_rates['USD'],
-        0
-    )
-
 def aggregate_tot_value_eur(group):
 
-    # if (group['measure'].iloc[0] == 'Commitment'):
-    #     return group
-    
     """ 
     This sums all elements in the aid categories, so we have the totalamount for each category 
     """
 
-    # Sum all row values for each aid category
     for aid_type in aid_categories:
+        # Sum all row values
         total_eur = float(group[aid_type].sum(min_count=1)) if not np.isnan(float(group[aid_type].sum(min_count=1))) else np.nan
         group.loc[:, aid_type] = total_eur
 
-    # The total_value dummy prevent double counting
-    # group['source_reported_value_EUR'] *= group['total_value_dummy']
-    # group['source_reported_value_EUR'] = group['source_reported_value_EUR'].sum()
+    """
+    - If there's a non-null source_reported_value_EUR in the group, use that (assuming
+      it applies to the entire activity).
+    - Otherwise, sum item_value_estimate_USD across the group and convert that sum to EUR.
+    """
+
+    # if (group['measure'].iloc[0] == 'Commitment'):
+    #     group['total_value_dummy'] = 1 - group['total_value_dummy']
+    
+    group['source_reported_value_EUR'] *= group['total_value_dummy']
+    group['source_reported_value_EUR'] = group['source_reported_value_EUR'].sum()
 
     # Sum all item_value_estimate_USD
     total_usd = float(group["item_value_estimate_USD"].sum(min_count=1))
@@ -124,60 +117,23 @@ def aggregate_tot_value_eur(group):
 
     group.loc[:, "items_value_estimate_EUR"] = tot_eur
 
-    # The reported_source_value is the same for data points with same sub_activity_id so it's okay to get the first value
+    # non_null_vals = group[~group["source_reported_value_EUR"].isna()]
+    # if non_null_vals.empty:
+    #         group.loc[:, "source_reported_value_EUR"] = tot_eur
+
     return group.head(1)
 
-# Sum all the item_value_estimate_USD by the sub_activity_id 
-# and return just one row for every group since they have the same values for the columns we need
+# If there isn't a source_reported_value_EUR sum all the item_value_estimate_USD by the activity_id 
+# and return just one row for every group since they have the same activity_id
 df = df.groupby("sub_activity_id").apply(aggregate_tot_value_eur)
 
-# print(df.head(10))
-
-def aggregate_tot_value_eur_2(group):
-
-    # for aid_type in aid_categories:
-    #     # Sum all row values
-    #     total_eur = float(group[aid_type].sum(min_count=1)) if not np.isnan(float(group[aid_type].sum(min_count=1))) else np.nan
-    #     group.loc[:, aid_type] = total_eur
-
-
-
-    # If flip all the total flip the children so just the allocations count and not the commitment
-    if (group['measure'].iloc[0] == 'Commitment'):
-        group.loc[group['measure'] == 'Commitment', 'source_reported_value_EUR'] = 0 # 1 - group.loc[group['measure'] == 'Commitment', 'total_value_dummy']
-        group.loc[group['measure'] != 'Commitment', 'source_reported_value_EUR'] = 1 # 1 - group.loc[group['measure'] == 'Commitment', 'total_value_dummy']
-        # group['total_value_dummy'] = 1 - group['total_value_dummy']
-    
-    # Sum all the clidren since they are all sub_activity values
-    group['source_reported_value_EUR'] *= group['total_value_dummy']
-    group['source_reported_value_EUR'] = group['source_reported_value_EUR'].sum()
-
-    # Sum all item_value_estimate_USD
-    # total_usd = float(group["item_value_estimate_USD"].sum(min_count=1))
-    # # Convert that sum to EUR
-    # tot_eur = int(total_usd * exchange_rates["USD"]) if not np.isnan(total_usd) else np.nan
-
-    # group.loc[:, "items_value_estimate_EUR"] = tot_eur
-
-    # non_null_vals = group[group["source_reported_value_EUR"].isna()]
-    # if non_null_vals.empty:
-    #     group.loc[:, "source_reported_value_EUR"] = tot_eur
-
-    return group
-
-
-df = df.groupby("activity_id").apply(aggregate_tot_value_eur_2)
-
-# print(df.head(10))
-
-# If it is financial aid add the whole reported value subtracted by the items mentioned to prevent double counting
+# NOTE: This might need changing
 df["Financial"] = np.where(
     df['aid_type_general'] == "Financial",
     df["source_reported_value_EUR"] - df['Financial'],
     df['Financial']
 )
 
-# If it is humanitarian aid add the whole reported value subtracted by the items mentioned to prevent double counting
 df["Humanitarian"] = np.where(
     df['aid_type_general'] == "Humanitarian",
     df["source_reported_value_EUR"] - df['Humanitarian'],
@@ -185,7 +141,7 @@ df["Humanitarian"] = np.where(
 )
 
 # Identify rows with no reported and item values
-invalid_mask = df['source_reported_value_EUR'].isna() & df['items_value_estimate_EUR'].isna()
+invalid_mask = df['source_reported_value_EUR'].isna() & df['item_value_estimate_USD'].isna()
 
 # Count how many rows is that
 both_null_count = df[invalid_mask].shape[0]
@@ -221,20 +177,17 @@ df["announcement_date"] = pd.to_datetime(df["announcement_date"], errors='coerce
 df = df.dropna(subset=['announcement_date'])
 
 df = df.sort_values(by='announcement_date')
-cols_to_sum = aid_categories + ['source_reported_value_EUR']
-print(df[cols_to_sum + ['announcement_date']].head(30))
-
-weekly_values = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['announcement_date']] # .sum().reset_index()
-# print(weekly_values.head(10))
 
 # 1. Define your list of columns to sum
+cols_to_sum = aid_categories + ['source_reported_value_EUR']
+
 # print(df[cols_to_sum].dtypes)
 
 # 2. Sum them row-wise and store in a new column, e.g. "total_value_EUR"
 print(df[cols_to_sum].sum()/1000000000)
 
-# print(df.loc[df.loc[df['aid_type_general'].astype(str) == "Humanitarian", 'source_reported_value_EUR'].max() == df['source_reported_value_EUR']])
-# print(df.head(30))
+print(df[(df['aid_type_general'].str == "Humanitarian")]['source_reported_value_EUR'].max())
+print(df.head(30))
 
 # print(df.count())
 # print(df.head(20))
