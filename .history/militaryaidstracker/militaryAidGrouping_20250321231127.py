@@ -163,7 +163,7 @@ def aggregate_tot_value_eur_2(group):
 
 df = df.groupby("activity_id").apply(aggregate_tot_value_eur_2)
 
-# # If it's Financial aid, store the whole reported value in "Financial"
+# If it's Financial aid, store the whole reported value in "Financial"
 mask = df['aid_type_general'] == "Financial"
 
 # Then subtract that out from "Uncategorised"
@@ -175,21 +175,19 @@ df.loc[mask, "Uncategorised"] = (
 df.loc[mask, "Financial"] = df.loc[mask, "source_reported_value_EUR"]
 
 
-# # If it is financial aid add the whole reported value subtracted by the items mentioned to prevent double counting
-# df["Financial"] = np.where(
-#     (df['aid_type_general'] == "Financial"),
-#     df["source_reported_value_EUR"],
-#     df['Financial']
-# )
-
-mask = df['aid_type_general'] == "Humanitarian"
+# If it is financial aid add the whole reported value subtracted by the items mentioned to prevent double counting
+df["Financial"] = np.where(
+    (df['aid_type_general'] == "Financial"),
+    df["source_reported_value_EUR"],
+    df['Financial']
+)
 
 df.loc[mask, "Uncategorised"] = (
     df.loc[mask, "Uncategorised"] 
-    - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Humanitarian"]
+    - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Financial"]
 )
 
-df.loc[mask, "Humanitarian"] = df.loc[mask, "source_reported_value_EUR"]
+df.loc[mask, "Financial"] = df.loc[mask, "source_reported_value_EUR"]
 
 # If it is humanitarian aid add the whole reported value subtracted by the items mentioned to prevent double counting
 # df["Humanitarian"] = np.where(
@@ -238,16 +236,16 @@ df = df.dropna(subset=['announcement_date'])
 
 df = df.sort_values(by='announcement_date')
 cols_to_sum = aid_categories + ['source_reported_value_EUR']
-print(df[cols_to_sum + ['announcement_date']].head(30))
+# print(df[cols_to_sum + ['announcement_date']].head(30))
 
 weekly_values = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised', 'items_value_estimate_EUR']].sum().reset_index() # .sum().reset_index()
-print(weekly_values.head(5))
+print(weekly_values.head(10))
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
 
 # 2. Sum them row-wise and store in a new column, e.g. "total_value_EUR"
-print(df[cols_to_sum + ['Uncategorised']].sum()/1000000000)
+print(df[cols_to_sum + ['Uncategorised', 'items_value_estimate_EUR']].sum()/1000000000)
 
 # print(df.loc[df.loc[df['aid_type_general'].astype(str) == "Humanitarian", 'source_reported_value_EUR'].max() == df['source_reported_value_EUR']])
 # print(df.head(30))

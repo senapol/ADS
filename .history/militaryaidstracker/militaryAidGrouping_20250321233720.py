@@ -238,10 +238,10 @@ df = df.dropna(subset=['announcement_date'])
 
 df = df.sort_values(by='announcement_date')
 cols_to_sum = aid_categories + ['source_reported_value_EUR']
-print(df[cols_to_sum + ['announcement_date']].head(30))
+# print(df[cols_to_sum + ['announcement_date']].head(30))
 
 weekly_values = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised', 'items_value_estimate_EUR']].sum().reset_index() # .sum().reset_index()
-print(weekly_values.head(5))
+print(weekly_values.head(10))
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)

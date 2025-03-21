@@ -89,7 +89,7 @@ df.loc[:, "source_reported_value_EUR"] = df.apply(
 
 # df.drop(columns={'source_reported_value'}, inplace=True)
 
-# print(df.loc[((df['aid_type_general'].astype(str) == 'Financial') | (df['aid_type_general'].astype(str) == 'Humanitarian')) & (df['item_type'] != None)])
+# print(df.loc[(df['measure'].astype(str) == 'Commitment') & (df['total_value_dummy'] == 1)])
 
 # --------
 # Create a collumn for each aid category and sum them for each sub group(that has same sub_activity_id)
@@ -121,15 +121,16 @@ def aggregate_tot_value_eur(group):
     # Convert that sum to EUR
     tot_eur = float(total_usd * exchange_rates["USD"]) if not np.isnan(total_usd) else 0
 
+    if tot_eur < 0:
+        print("YESSSS")
+        print(group)
     group.loc[:, "items_value_estimate_EUR"] = tot_eur
 
-    row_out = group.head(1).copy()
     s_reported = group["source_reported_value_EUR"].iloc[0]
     if pd.isna(s_reported):
         adjusted_value = 0
     else:
-        adjusted_value = s_reported - tot_eur if (s_reported > tot_eur) and (tot_eur >= 0) else 0
-    
+        adjusted_value = s_reported - tot_eur if (s_reported > tot_eur) & (tot_eur > 0) else 0
     group.loc[:, "Uncategorised"] = adjusted_value
 
     # The reported_source_value is the same for data points with same sub_activity_id so it's okay to get the first value
@@ -139,7 +140,7 @@ def aggregate_tot_value_eur(group):
 # and return just one row for every group since they have the same values for the columns we need
 df = df.groupby("sub_activity_id").apply(aggregate_tot_value_eur)
 
-# print(df.head(15))
+print(df['items_value_estimate_EUR'].head(15))
 
 def aggregate_tot_value_eur_2(group):
 
@@ -151,54 +152,27 @@ def aggregate_tot_value_eur_2(group):
     
     # Sum all the clidren since they are all sub_activity values
     group['source_reported_value_EUR'] *= group['total_value_dummy']
-    # group['source_reported_value_EUR'] = group['source_reported_value_EUR'].sum()
-    group.loc[:, "Uncategorised"] = np.where(
-        (group["source_reported_value_EUR"].notnull()) & 
-        (group["source_reported_value_EUR"] > group["items_value_estimate_EUR"]),
-        group["source_reported_value_EUR"] - group["items_value_estimate_EUR"],
-        0
-    )
+    group['source_reported_value_EUR'] = group['source_reported_value_EUR'].sum()
 
     return group
 
 df = df.groupby("activity_id").apply(aggregate_tot_value_eur_2)
 
-# # If it's Financial aid, store the whole reported value in "Financial"
-mask = df['aid_type_general'] == "Financial"
+# print(df.head(10))
 
-# Then subtract that out from "Uncategorised"
-df.loc[mask, "Uncategorised"] = (
-    df.loc[mask, "Uncategorised"] 
-    - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Financial"]
+# If it is financial aid add the whole reported value subtracted by the items mentioned to prevent double counting
+df["Financial"] = np.where(
+    (df['aid_type_general'] == "Financial") & (df["source_reported_value_EUR"] > df['Financial']),
+    df["source_reported_value_EUR"] - df['Financial'],
+    df['Financial']
 )
-
-df.loc[mask, "Financial"] = df.loc[mask, "source_reported_value_EUR"]
-
-
-# # If it is financial aid add the whole reported value subtracted by the items mentioned to prevent double counting
-# df["Financial"] = np.where(
-#     (df['aid_type_general'] == "Financial"),
-#     df["source_reported_value_EUR"],
-#     df['Financial']
-# )
-
-mask = df['aid_type_general'] == "Humanitarian"
-
-df.loc[mask, "Uncategorised"] = (
-    df.loc[mask, "Uncategorised"] 
-    - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Humanitarian"]
-)
-
-df.loc[mask, "Humanitarian"] = df.loc[mask, "source_reported_value_EUR"]
 
 # If it is humanitarian aid add the whole reported value subtracted by the items mentioned to prevent double counting
-# df["Humanitarian"] = np.where(
-#     (df['aid_type_general'] == "Humanitarian"),
-#     df["source_reported_value_EUR"],
-#     df['Humanitarian']
-# )
-
-# print(df.head(15))
+df["Humanitarian"] = np.where(
+    (df['aid_type_general'] == "Humanitarian") & (df["source_reported_value_EUR"] > df['Humanitarian']),
+    df["source_reported_value_EUR"] - df['Humanitarian'],
+    df['Humanitarian']
+)
 
 # Identify rows with no reported and item values
 invalid_mask = df['source_reported_value_EUR'].isna() & df['items_value_estimate_EUR'].isna()
@@ -238,10 +212,10 @@ df = df.dropna(subset=['announcement_date'])
 
 df = df.sort_values(by='announcement_date')
 cols_to_sum = aid_categories + ['source_reported_value_EUR']
-print(df[cols_to_sum + ['announcement_date']].head(30))
+# print(df[cols_to_sum + ['announcement_date']].head(30))
 
-weekly_values = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised', 'items_value_estimate_EUR']].sum().reset_index() # .sum().reset_index()
-print(weekly_values.head(5))
+weekly_values = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
+# print(weekly_values.head(10))
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
