@@ -240,8 +240,8 @@ df = df.sort_values(by='announcement_date')
 cols_to_sum = aid_categories
 print(df[cols_to_sum + ['announcement_date']].head(30))
 
-df = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
-print(df.head(5))
+weekly_values = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
+print(weekly_values.head(5))
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
@@ -255,7 +255,7 @@ print(df[cols_to_sum + ['Uncategorised']].sum()/1000000000)
 # print(df.count())
 # print(df.head(20))
 
-# Save the cleaned datasets as new files
-cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
+# # Save the cleaned datasets as new files
+# cleaned_aid_path = "data/cleaned/military_aid_NEW.csv"
 
-df.to_csv(cleaned_aid_path, index=False)
+# df.to_csv(cleaned_aid_path, index=False)
