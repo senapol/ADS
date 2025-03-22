@@ -35,5 +35,3 @@ correlations = {
 correlations_df = pd.DataFrame(list(correlations.items()), columns=["Aid Category", "Correlation with Frontline Movement"])
 correlations_df = correlations_df.sort_values(by="Correlation with Frontline Movement", ascending=False).reset_index(drop=True)
 correlations_df.to_csv("correlation_aid_vs_frontline.csv", index=False)
-
-print("Saved as 'correlation_aid_vs_frontline.csv'")
