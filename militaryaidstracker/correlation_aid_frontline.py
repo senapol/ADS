@@ -33,5 +33,8 @@ correlations = {
 
 # 6. convert
 correlations_df = pd.DataFrame(list(correlations.items()), columns=["Aid Category", "Correlation with Frontline Movement"])
+trend_df = merged_df[["announcement_date", "movement_km"] + aid_categories]
+
 correlations_df = correlations_df.sort_values(by="Correlation with Frontline Movement", ascending=False).reset_index(drop=True)
+trend_df.to_csv("weekly_aid_and_frontline_movement.csv", index=False)
 correlations_df.to_csv("correlation_aid_vs_frontline.csv", index=False)
