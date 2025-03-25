@@ -1,7 +1,7 @@
 import pandas as pd
 
-aid_df = pd.read_csv("data/aid_categories_weekly.csv")
-frontline_df = pd.read_csv("data/frontline_movement_with_distance.csv")
+aid_df = pd.read_csv("../data/cleaned/aid_categories_weekly.csv")
+frontline_df = pd.read_csv("../data/cleaned/frontline_movement_with_distance.csv")
 
 # 1. date columns into datetime
 aid_df["announcement_date"] = pd.to_datetime(aid_df["announcement_date"])
