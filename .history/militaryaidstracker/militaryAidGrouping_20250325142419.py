@@ -260,7 +260,6 @@ print(df[cols_to_sum + ['Uncategorised']].sum()/1000000000)
 # print(df.head(30))
 
 # Save the cleaned datasets as new files
-cleaned_aid_path = "data/cleaned/aid_categories_monthly.csv"
-# cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
+cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
 
 df.to_csv(cleaned_aid_path, index=False)

@@ -240,15 +240,15 @@ df = df.sort_values(by='announcement_date')
 cols_to_sum = aid_categories
 # print(df[cols_to_sum + ['announcement_date']].head(30))
 
-# grouped = df.groupby(pd.Grouper(key='announcement_date', freq='W'))[cols_to_sum + ['Uncategorised'] + ["source_reported_value_EUR"]]
+grouped = df.groupby(pd.Grouper(key='announcement_date', freq='W'))[cols_to_sum + ['Uncategorised'] + ["source_reported_value_EUR"]]
 
-# #   # adjust this to the exact group key as it appears in the groups
-# target_date = pd.Timestamp('2024-09-01')
-# # # Retrieve the group for that date
-# group = grouped.get_group(target_date)
-# print(group)
+#   # adjust this to the exact group key as it appears in the groups
+target_date = pd.Timestamp('2024-09-01')
+# # Retrieve the group for that date
+group = grouped.get_group(target_date)
+print(group)
 
-df = df.groupby([pd.Grouper(key='announcement_date', freq='M')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
+df = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
@@ -259,8 +259,10 @@ print(df[cols_to_sum + ['Uncategorised']].sum()/1000000000)
 # print(df.loc[df.loc[df['aid_type_general'].astype(str) == "Humanitarian", 'source_reported_value_EUR'].max() == df['source_reported_value_EUR']])
 # print(df.head(30))
 
+# print(df.count())
+# print(df.head(20))
+
 # Save the cleaned datasets as new files
-cleaned_aid_path = "data/cleaned/aid_categories_monthly.csv"
-# cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
+cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
 
 df.to_csv(cleaned_aid_path, index=False)

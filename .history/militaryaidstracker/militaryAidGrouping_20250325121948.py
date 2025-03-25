@@ -101,8 +101,6 @@ for aid_type in aid_categories:
         0
     )
 
-df.loc[(df["activity_id"] == "ESH12", "item_value_estimate_USD")] = 0
-
 def aggregate_tot_value_eur(group):
 
     """ 
@@ -171,10 +169,11 @@ mask = df['aid_type_general'] == "Financial"
 # Then subtract that out from "Uncategorised"
 df.loc[mask, "Uncategorised"] = (
     df.loc[mask, "Uncategorised"] 
-    - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Financial"] + 1
+    - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Financial"]
 )
 
 df.loc[mask, "Financial"] = df.loc[mask, "source_reported_value_EUR"]
+
 
 # # If it is financial aid add the whole reported value subtracted by the items mentioned to prevent double counting
 # df["Financial"] = np.where(
@@ -186,7 +185,8 @@ df.loc[mask, "Financial"] = df.loc[mask, "source_reported_value_EUR"]
 mask = df['aid_type_general'] == "Humanitarian"
 
 df.loc[mask, "Uncategorised"] = (
-    df.loc[mask, "Uncategorised"] - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Humanitarian"] + 1
+    df.loc[mask, "Uncategorised"] 
+    - df.loc[mask, "source_reported_value_EUR"] + df.loc[mask, "Humanitarian"]
 )
 
 df.loc[mask, "Humanitarian"] = df.loc[mask, "source_reported_value_EUR"]
@@ -238,17 +238,12 @@ df = df.dropna(subset=['announcement_date'])
 
 df = df.sort_values(by='announcement_date')
 cols_to_sum = aid_categories
-# print(df[cols_to_sum + ['announcement_date']].head(30))
+print(df[cols_to_sum + ['announcement_date']].head(30))
 
-# grouped = df.groupby(pd.Grouper(key='announcement_date', freq='W'))[cols_to_sum + ['Uncategorised'] + ["source_reported_value_EUR"]]
+df = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
 
-# #   # adjust this to the exact group key as it appears in the groups
-# target_date = pd.Timestamp('2024-09-01')
-# # # Retrieve the group for that date
-# group = grouped.get_group(target_date)
-# print(group)
-
-df = df.groupby([pd.Grouper(key='announcement_date', freq='M')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
+df = df.loc[~(df["Uncategorised"] < 0)]
+print(df.head(5))
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
@@ -259,8 +254,10 @@ print(df[cols_to_sum + ['Uncategorised']].sum()/1000000000)
 # print(df.loc[df.loc[df['aid_type_general'].astype(str) == "Humanitarian", 'source_reported_value_EUR'].max() == df['source_reported_value_EUR']])
 # print(df.head(30))
 
+# print(df.count())
+# print(df.head(20))
+
 # Save the cleaned datasets as new files
-cleaned_aid_path = "data/cleaned/aid_categories_monthly.csv"
-# cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
+cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
 
 df.to_csv(cleaned_aid_path, index=False)

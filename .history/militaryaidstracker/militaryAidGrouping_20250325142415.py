@@ -248,7 +248,7 @@ cols_to_sum = aid_categories
 # group = grouped.get_group(target_date)
 # print(group)
 
-df = df.groupby([pd.Grouper(key='announcement_date', freq='M')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
+df = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
@@ -260,7 +260,6 @@ print(df[cols_to_sum + ['Uncategorised']].sum()/1000000000)
 # print(df.head(30))
 
 # Save the cleaned datasets as new files
-cleaned_aid_path = "data/cleaned/aid_categories_monthly.csv"
-# cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
+cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
 
 df.to_csv(cleaned_aid_path, index=False)

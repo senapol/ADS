@@ -248,7 +248,7 @@ cols_to_sum = aid_categories
 # group = grouped.get_group(target_date)
 # print(group)
 
-df = df.groupby([pd.Grouper(key='announcement_date', freq='M')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
+df = df.groupby([pd.Grouper(key='announcement_date', freq='MS')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
