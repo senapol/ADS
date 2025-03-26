@@ -1,132 +1,184 @@
 import pandas as pd
-import numpy as np
 import geopandas as gpd
-from shapely.geometry import Point
-from sklearn.cluster import DBSCAN
-import folium
-from folium.plugins import TimestampedGeoJson
-from datetime import datetime
-from math import radians, cos, sin, sqrt, atan2
+import numpy as np
+from shapely.geometry import MultiPolygon, Point, LineString
+import plotly.graph_objects as go
+import datetime
+from scipy.ndimage import gaussian_filter1d
+import requests
+import zipfile
+import os
+import matplotlib.pyplot as plt
+import webbrowser
 
 
-def haversine(coord1, coord2):
-    R = 6371  # Earth radius (km)
-    lat1, lon1 = coord1
-    lat2, lon2 = coord2
-    dlat = radians(lat2 - lat1)
-    dlon = radians(lon2 - lon1)
-    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    return R * c
+def download_ukraine_border():
+    url = "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_UKR_shp.zip"
+    local_zip = "gadm41_UKR_shp.zip"
 
-def generate_starting_border_nodes(border_coords, spacing_km=20):
-    nodes = []
-    for i in range(len(border_coords) - 1):
-        start, end = border_coords[i], border_coords[i + 1]
-        dist = haversine((start[1], start[0]), (end[1], end[0]))
-        num_points = max(int(dist // spacing_km), 1)
-        for j in range(num_points + 1):
-            lat = start[1] + (end[1] - start[1]) * (j / num_points)
-            lon = start[0] + (end[0] - start[0]) * (j / num_points)
-            nodes.append((lat, lon))
-    return nodes
+    if not os.path.exists("gadm_ukraine/gadm41_UKR_0.shp"):
+        os.makedirs("gadm_ukraine", exist_ok=True)
+        response = requests.get(url)
+        with open(local_zip, "wb") as f:
+            f.write(response.content)
+        with zipfile.ZipFile(local_zip, 'r') as zip_ref:
+            zip_ref.extractall("gadm_ukraine")
+        os.remove(local_zip)
 
-def compute_distance_matrix(points):
-    n = len(points)
-    distance_matrix = np.zeros((n, n))
-    for i in range(n):
-        for j in range(i + 1, n):
-            distance = haversine(points[i], points[j])
-            distance_matrix[i, j] = distance
-            distance_matrix[j, i] = distance
-    return distance_matrix
-
-def cluster_points(points, eps=30):
-    if len(points) < 2:
-        return []
-    distance_matrix = compute_distance_matrix(points)
-    clustering = DBSCAN(eps=eps, min_samples=2, metric='precomputed')
-    clustering.fit(distance_matrix)
-    clusters = {}
-    for i, label in enumerate(clustering.labels_):
-        if label != -1:
-            clusters.setdefault(label, []).append(points[i])
-    centroids = [[np.mean([p[0] for p in cluster]), np.mean([p[1] for p in cluster])] for cluster in clusters.values() if cluster]
-    return centroids
-
-def build_frontline(date_str, border_nodes, df, window_days=60):
-    date_timestamp = pd.Timestamp(date_str)
-    start_window = date_timestamp - pd.Timedelta(days=window_days)
-    relevant_types = ['Battles', 'Explosions/Remote violence', 'Strategic developments']
-    mask = (df['event_date'] >= start_window) & (df['event_date'] <= date_timestamp) & (df['event_type'].isin(relevant_types))
-    relevant_data = df[mask]
-    battle_points = relevant_data[['latitude', 'longitude']].values.tolist()
-    points = battle_points + border_nodes
-    centroids = cluster_points(points, eps=30)
-    if not centroids:
-        return border_nodes
-    west_point = min(border_nodes, key=lambda p: p[1])
-    east_point = max(border_nodes, key=lambda p: p[1])
-    frontline_points = [west_point] + sorted(centroids, key=lambda p: p[1]) + [east_point]
-    return frontline_points
+    return gpd.read_file("gadm_ukraine/gadm41_UKR_0.shp")
 
 
+def generate_precise_border_nodes(ukraine_border, num_nodes=20000):
+    border_geom = ukraine_border.geometry.iloc[0]
 
-df = pd.read_csv("ACLED_Ukraine_Reduced.csv")
-df['event_date'] = pd.to_datetime(df['event_date'])
-df = df[df['event_date'] > '2021-11-30']
+    if border_geom.geom_type == 'MultiPolygon':
+        border_geom = max(border_geom.geoms, key=lambda poly: poly.area)
 
-try:
-    border_gdf = gpd.read_file("ukraine_border.geojson")
-    border_polygon = border_gdf.geometry.iloc[0]
-    ukraine_border = list(border_polygon.exterior.coords)
-except:
-    ukraine_border = [(22.0, 48.0), (40.0, 48.0), (40.0, 52.0), (22.0, 52.0), (22.0, 48.0)]
+    if border_geom.geom_type == 'Polygon':
+        exterior_coords = list(border_geom.exterior.coords)
+    else:
+        raise ValueError(f"Unexpected geometry type: {border_geom.geom_type}")
 
-border_nodes = generate_starting_border_nodes(ukraine_border, spacing_km=20)
+    border_line = LineString(exterior_coords)
+    border_length = border_line.length
+    border_nodes = [border_line.interpolate(float(i * border_length) / num_nodes) for i in range(num_nodes)]
 
+    frontline_nodes = pd.DataFrame({
+        'latitude': [point.y for point in border_nodes],
+        'longitude': [point.x for point in border_nodes]
+    })
 
-monthly_dates = []
-date_strings = sorted(df['event_date'].dt.strftime('%Y-%m-%d').unique())
-for date_str in date_strings:
-    date = datetime.strptime(date_str, '%Y-%m-%d')
-    if not monthly_dates or date.month != datetime.strptime(monthly_dates[-1], '%Y-%m-%d').month:
-        monthly_dates.append(date_str)
-
-frontlines = {}
-for date_str in monthly_dates:
-    line = build_frontline(date_str, border_nodes, df, window_days=60)
-    if len(line) > 2:
-        frontlines[date_str] = line
+    return frontline_nodes
 
 
-features = []
-start_year = datetime.strptime(monthly_dates[0], '%Y-%m-%d').year
-end_year = datetime.strptime(monthly_dates[-1], '%Y-%m-%d').year
+def load_acled_data():
+    acled = pd.read_csv('ACLED_Ukraine_Reduced.csv')
+    acled['event_date'] = pd.to_datetime(acled['event_date'])
+    acled = acled[acled['event_date'] >= pd.Timestamp('2022-02-24')]
+    acled['week'] = acled['event_date'].dt.to_period('W').apply(lambda r: r.start_time)
 
-for date, line in frontlines.items():
-    date_obj = datetime.strptime(date, '%Y-%m-%d')
-    year_fraction = date_obj.year + date_obj.month / 12
-    color_value = int(255 * (year_fraction - start_year) / max(1, end_year - start_year))
-    color = f'#{255 - color_value:02x}{0:02x}{color_value:02x}'
+    current_date = acled['event_date'].max()
+    acled['age_weeks'] = (current_date - acled['event_date']).dt.days / 7
+    acled['weight'] = np.exp(-0.6 * acled['age_weeks'])
 
-    feature = {
-        "type": "Feature",
-        "geometry": {"type": "LineString", "coordinates": [[p[1], p[0]] for p in line]},
-        "properties": {
-            "times": [f"{date}T00:00:00Z"],
-            "style": {"color": color, "weight": 4, "opacity": 0.8}
-        }
-    }
-    features.append(feature)
+    return acled
 
-frontline_geojson = {"type": "FeatureCollection", "features": features}
 
-m = folium.Map(location=[49, 32], zoom_start=6)
-if 'border_gdf' in locals():
-    folium.GeoJson(border_gdf, style_function=lambda x: {"color": "black", "weight": 1}).add_to(m)
+def compute_weekly_frontline(acled, frontline_nodes, ukraine_border,
+                             decay_lambda=0.2, search_radius=0.10):
+    weeks = sorted(acled['week'].unique())
+    node_history = []
+    current_nodes = frontline_nodes.copy()
 
-TimestampedGeoJson(frontline_geojson, period='P1M', add_last_point=False, duration='P1M', transition_time=300, auto_play=True, loop=True).add_to(m)
-m.save("frontline_tracker_windowed.html")
+    border_geom = ukraine_border.geometry.iloc[0]
+    if border_geom.geom_type == 'MultiPolygon':
+        border_geom = max(border_geom.geoms, key=lambda poly: poly.area)
 
-print("✅ Saved map as frontline_tracker_windowed.html")
+    for week in weeks:
+        print(f"Processing week: {week}")
+        current_week = pd.to_datetime(week)
+        start_period = current_week - pd.DateOffset(months=2)
+        weekly_points = acled[(acled['event_date'] >= start_period) & (acled['event_date'] <= current_week)].copy()
+
+        new_lat, new_lon = [], []
+
+        for _, node in current_nodes.iterrows():
+            distances = np.sqrt((weekly_points['latitude'] - node['latitude']) ** 2 +
+                                (weekly_points['longitude'] - node['longitude']) ** 2)
+            nearby = weekly_points[distances < search_radius]
+
+            if not nearby.empty:
+                offset_lat = ((nearby['latitude'] - node['latitude']) * nearby['weight']).sum() / nearby['weight'].sum()
+                offset_lon = ((nearby['longitude'] - node['longitude']) * nearby['weight']).sum() / nearby[
+                    'weight'].sum()
+
+                new_point = Point(node['longitude'] + 0.9 * offset_lon, node['latitude'] + 0.9 * offset_lat)
+
+                if border_geom.contains(new_point):
+                    new_lat.append(new_point.y)
+                    new_lon.append(new_point.x)
+                else:
+                    new_lat.append(node['latitude'])
+                    new_lon.append(node['longitude'])
+            else:
+                new_lat.append(node['latitude'])
+                new_lon.append(node['longitude'])
+
+        new_lat = gaussian_filter1d(new_lat, sigma=1)
+        new_lon = gaussian_filter1d(new_lon, sigma=1)
+
+        current_nodes['latitude'], current_nodes['longitude'] = new_lat, new_lon
+        current_nodes['week'] = week
+        node_history.append(current_nodes.copy())
+
+    return node_history
+
+
+def plot_frontline_with_slider(node_history, acled):
+    fig = go.Figure()
+
+    for i, week_nodes in enumerate(node_history):
+        week_nodes = week_nodes.copy()
+        fig.add_trace(go.Scattermapbox(
+            lat=week_nodes['latitude'],
+            lon=week_nodes['longitude'],
+            mode='lines',
+            line=dict(width=2, color='red'),
+            name=str(week_nodes['week'].iloc[0]),
+            visible=(i == 0)
+        ))
+
+        week_points = acled[acled['week'] == week_nodes['week'].iloc[0]]
+        if not week_points.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=week_points['latitude'],
+                lon=week_points['longitude'],
+                mode='markers',
+                marker=dict(size=week_points['weight'] * 25, color='orange', opacity=0.4),
+                showlegend=False,
+                visible=(i == 0)
+            ))
+
+    steps = []
+    for i in range(len(node_history)):
+        step = dict(method="update", args=[{"visible": [False] * len(fig.data)}])
+        line_idx = i * 2
+        step["args"][0]["visible"][line_idx] = True
+        if line_idx + 1 < len(fig.data):
+            step["args"][0]["visible"][line_idx + 1] = True
+        step["label"] = str(node_history[i]['week'].iloc[0].date())
+        steps.append(step)
+
+    sliders = [dict(active=0, currentvalue={"prefix": "Week: "}, steps=steps)]
+
+    fig.update_layout(
+        sliders=sliders,
+        updatemenus=[dict(
+            type="buttons",
+            showactive=False,
+            buttons=[
+                dict(label="Play",
+                     method="animate",
+                     args=[None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}]),
+                dict(label="Pause",
+                     method="animate",
+                     args=[[None], {"frame": {"duration": 0, "redraw": False}, "mode": "immediate"}])
+            ],
+            x=0.05, y=0, xanchor="left", yanchor="bottom"
+        )],
+        mapbox_style="carto-positron",
+        mapbox_zoom=5,
+        mapbox_center={"lat": 49, "lon": 32},
+        height=800
+    )
+
+    fig.write_html("frontline_map.html")
+    webbrowser.open("frontline_map.html")
+
+
+if __name__ == "__main__":
+    ukraine = download_ukraine_border()
+    frontline_nodes = generate_precise_border_nodes(ukraine, num_nodes=20000)
+    acled = load_acled_data()
+    node_history = compute_weekly_frontline(acled, frontline_nodes, ukraine)
+    plot_frontline_with_slider(node_history, acled)
