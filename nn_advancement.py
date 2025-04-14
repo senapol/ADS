@@ -4,12 +4,15 @@ Created on Wed Mar 19 19:25:34 2025
 
 @author: talia
 """
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from ipywidgets import interactive, IntSlider, fixed
 from IPython.display import display
 import datetime
+import json
+from shapely.geometry import Polygon, Point
 
 def plot_classification_scatter_window(start_day_index, df):
     """
@@ -89,7 +92,7 @@ def plot_classification_scatter(df):
 def classify_events(df, dictionary):
     """
     Adds a 'classification' column to the DataFrame based on 'actor1' values.
-    
+
     - If 'actor1' contains 'Russia' and the corresponding event type in the dictionary is True, classification = 1.
     - If 'actor1' contains 'Ukraine' and the corresponding event type in the dictionary is True, classification = -1.
     - Otherwise, classification = 0.
@@ -102,10 +105,10 @@ def classify_events(df, dictionary):
     Returns:
     pd.DataFrame: A modified DataFrame with the 'classification' column.
     """
-    
+
     # Filter rows where 'actor1' contains 'Russia' or 'Ukraine'
     df = df[df['actor1'].str.contains('Russia|Ukraine', case=False, na=False)]
-    
+
     # Apply classification logic
     def classify(row):
         event_type = row['sub_event_type']
@@ -134,7 +137,7 @@ def duplicate_armed_clash_events(df):
     Returns:
     pd.DataFrame: A DataFrame with the duplicated 'Armed clash' events included.
     """
-    
+
     # Filter for Armed clash events
     armed_clash_events = df[df['sub_event_type'] == 'Armed clash'].copy()
 
@@ -143,23 +146,6 @@ def duplicate_armed_clash_events(df):
 
     # Append duplicated rows back to the original DataFrame
     df = pd.concat([df, armed_clash_events], ignore_index=True)
-    
-    armed_clash_events = df[df['sub_event_type'] == 'Government regains territory'].copy()
-
-    # Swap actor1 and actor2 in the duplicated rows
-    armed_clash_events[['actor1', 'actor2']] = armed_clash_events[['actor2', 'actor1']]
-
-    # Append duplicated rows back to the original DataFrame
-    df = pd.concat([df, armed_clash_events], ignore_index=True)
-    
-    armed_clash_events = df[df['sub_event_type'] == 'Non-state actor overtakes territory'].copy()
-
-    # Swap actor1 and actor2 in the duplicated rows
-    armed_clash_events[['actor1', 'actor2']] = armed_clash_events[['actor2', 'actor1']]
-
-    # Append duplicated rows back to the original DataFrame
-    df = pd.concat([df, armed_clash_events], ignore_index=True)
-
 
     return df
 
@@ -169,6 +155,7 @@ def duplicate_armed_clash_events(df):
 
 df = pd.read_csv("data/ACLED_Ukraine_Reduced.csv")
 df["event_date"] = pd.to_datetime(df["event_date"], dayfirst=True)
+
 
 behind_actor_1_lines = {
     'Armed clash': True,
@@ -185,6 +172,7 @@ behind_actor_1_lines = {
 }
 
 df = duplicate_armed_clash_events(df)
+
 new_df = df[df['sub_event_type'].isin(behind_actor_1_lines.keys())]
 #print(new_df)
 new_df = classify_events(new_df, behind_actor_1_lines)
@@ -192,54 +180,116 @@ plot_classification_scatter(new_df)
 
 dates = list(set(new_df['event_date']))
 dates.sort()
-date = dates[500:600]
 
+# Load GeoJSON file
 
-import numpy as np
-import pandas as pd
+from shapely.geometry import Polygon, MultiPolygon
+from shapely.ops import unary_union
+
+with open("data/border.json", "r") as f:
+    border_data = json.load(f)
+
+# Extract all polygons from the GeoJSON data
+polygons = []
+for feature in border_data["features"]:
+    geom = feature["geometry"]
+    if geom["type"] == "MultiPolygon":
+        for poly_coords in geom["coordinates"]:
+            polygons.append(Polygon(poly_coords[0]))  # Assuming one outer ring in each MultiPolygon
+    elif geom["type"] == "Polygon":
+        polygons.append(Polygon(geom["coordinates"][0]))  # Assuming one outer ring in each Polygon
+
+# Create a MultiPolygon object from the individual polygons
+ukraine_polygon = MultiPolygon(polygons) # Changed this line to create MultiPolygon
+
+# If ukraine_polygon is a MultiPolygon, get the exterior of the largest polygon
+if ukraine_polygon.geom_type == 'MultiPolygon':
+    # Get the polygon with the largest area
+    # Iterate through the individual polygons within the MultiPolygon
+    largest_polygon = max(ukraine_polygon.geoms, key=lambda p: p.area) #changed this line to iterate through polygons
+    border_coords = list(largest_polygon.exterior.coords)
+    ukraine_polygon = largest_polygon
+else:
+    # If it's a Polygon, get the exterior directly
+    border_coords = list(ukraine_polygon.exterior.coords)
+
+# Convert to a list of (longitude, latitude) tuples
+border_coords = [(x, y) for x, y in border_coords]
+
+border_coords_new = border_coords[::40]
+ukraine_polygon = Polygon(border_coords_new)
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from shapely.geometry import Polygon
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+from shapely.ops import nearest_points
 
-# Load data (replace with actual file)
-df = new_df  # Contains 'longitude', 'latitude', 'classification'
 
-# Convert 'classification' into binary (0: red, 1: blue)
-#df['classification'] = df['classification'].map({'red': 0, 'blue': 1})
+# Function to filter points inside Ukraine
+def filter_inside_ukraine(df):
+    points = [Point(xy) for xy in zip(df['longitude'], df['latitude'])]
+    inside_mask = [ukraine_polygon.contains(p) for p in points]
+    return df[inside_mask].reset_index(drop=True)
 
-# Extract spatial features
-X = df[['longitude', 'latitude']].values  # Spatial features
-y = df['classification'].values
+new_df['classification'] = new_df['classification'].astype(int)
+# Apply filtering
+new_df = filter_inside_ukraine(new_df)
 
-# Start with initial time window
-start_idx, end_idx = 1510, 1515
-current_dates = dates[start_idx:end_idx]
-current_df = df[df['event_date'].isin(current_dates)]
+# Get list of dates
+dates = sorted(set(new_df['event_date']))
+war_start_idx = 1510  # War starts at this index
 
-# Neural Network Model
+# Assume full blue control before war
+initial_grid = filter_inside_ukraine(pd.DataFrame({
+    'longitude': np.linspace(new_df['longitude'].min(), new_df['longitude'].max(), 400),
+    'latitude': np.linspace(new_df['latitude'].min(), new_df['latitude'].max(), 400),
+    'probability': 1.0  # Entire Ukraine starts as blue
+}))
+
 class FrontlineNN(nn.Module):
     def __init__(self):
         super(FrontlineNN, self).__init__()
         self.model = nn.Sequential(
-            nn.Linear(2, 16),
+            nn.Linear(2, 32),
             nn.ReLU(),
-            nn.Linear(16, 16),
+            nn.Linear(32, 32),
             nn.ReLU(),
-            nn.Linear(16, 1),
+            nn.Linear(32, 1),
             nn.Sigmoid()
         )
 
     def forward(self, x):
         return self.model(x)
+    
+# Generate a grid for predictions
+def create_filtered_grid(df):
+    # Use fixed bounds for consistent grid generation
+    lon_min, lon_max = 22.0, 40.0  # Example bounds for Ukraine
+    lat_min, lat_max = 44.0, 52.0
+    
+    lon_grid = np.linspace(lon_min, lon_max, 400)
+    lat_grid = np.linspace(lat_min, lat_max, 400)
+    
+    grid_points = pd.DataFrame({
+        'longitude': np.repeat(lon_grid, len(lat_grid)),
+        'latitude': np.tile(lat_grid, len(lon_grid))})
+    
+    return filter_inside_ukraine(grid_points)
 
-# Train & Predict function
+
+# Function to train and predict
 def train_and_predict(current_df):
     X = current_df[['longitude', 'latitude']].values
-    y = current_df['classification'].values
+    y = current_df['classification'].values.astype(np.float32)
 
-    # Normalize coordinates
+    # Normalize input features
     X_mean, X_std = X.mean(axis=0), X.std(axis=0)
     X_normalized = (X - X_mean) / X_std
 
@@ -247,144 +297,160 @@ def train_and_predict(current_df):
     X_tensor = torch.tensor(X_normalized, dtype=torch.float32)
     y_tensor = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
 
-    # Train model
+    # Initialize neural network
     model = FrontlineNN()
     criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
+    # Train the model
     epochs = 500
-    for epoch in range(epochs):
+    for _ in range(epochs):
         optimizer.zero_grad()
         y_pred = model(X_tensor)
         loss = criterion(y_pred, y_tensor)
         loss.backward()
         optimizer.step()
 
-    # Generate prediction grid
-    lon_min, lon_max = current_df['longitude'].min(), current_df['longitude'].max()
-    lat_min, lat_max = current_df['latitude'].min(), current_df['latitude'].max()
-    lon_grid, lat_grid = np.meshgrid(np.linspace(lon_min, lon_max, 400),
-                                     np.linspace(lat_min, lat_max, 400))
-    X_test = np.c_[lon_grid.ravel(), lat_grid.ravel()]
+    filtered_grid = create_filtered_grid(current_df)
+    X_test = filtered_grid[['longitude', 'latitude']].values
     X_test_normalized = (X_test - X_mean) / X_std
     X_test_tensor = torch.tensor(X_test_normalized, dtype=torch.float32)
 
     # Predict probabilities
     with torch.no_grad():
-        probabilities = model(X_test_tensor).numpy().reshape(lon_grid.shape)
+        probabilities = model(X_test_tensor).numpy().reshape(-1)
 
-    return lon_grid, lat_grid, probabilities, model, X_mean, X_std
+    # Convert back to grid
+    filtered_grid['probability'] = probabilities
+    return filtered_grid
 
-# Function to remove old points only if 4+ new points exist nearby
-def filter_old_points(current_df, new_events):
-    buffer_distance = 0.1  # Define removal radius
-    cleaned_df = current_df.copy()
-
-    for _, row in new_events.iterrows():
-        lon, lat = row['longitude'], row['latitude']
-
-        # Find new points in the same area
-        nearby_new = new_events[(np.abs(new_events['longitude'] - lon) < buffer_distance) &
-                                (np.abs(new_events['latitude'] - lat) < buffer_distance)]
-        
-        # If 4 or more new points, remove older points in the area
-        if len(nearby_new) >= 4:
-            cleaned_df = cleaned_df[~((np.abs(cleaned_df['longitude'] - lon) < buffer_distance) &
-                                      (np.abs(cleaned_df['latitude'] - lat) < buffer_distance))]
-    
-    return cleaned_df
-
-# Function to update frontline dynamically
-def update_frontline():
-    global current_dates, current_df
-
-    print("Starting frontline update...")
-
-    # Initial Frontline Plot
-    print("Plotting initial frontline...")
-    lon_grid, lat_grid, probabilities, _, _, _ = train_and_predict(current_df)
-    plot_frontline(lon_grid, lat_grid, probabilities, current_df, title="Initial Frontline")
-
-    # Process dates in batches of 30 days
-    batch_size = 30
-    for i in range(end_idx, len(dates), batch_size):
-        batch_dates = dates[i:i + batch_size]
-        print(f"Processing batch: {batch_dates[0]} to {batch_dates[-1]}")
-
-        # Add new events
-        new_events = df[df['event_date'].isin(batch_dates)]
-        current_df = pd.concat([current_df, new_events])
-
-        # Train model and predict
-        lon_grid, lat_grid, probabilities, model, X_mean, X_std = train_and_predict(current_df)
-
-        # Test model performance on new events
-        X_new = new_events[['longitude', 'latitude']].values
-        X_new_normalized = (X_new - X_mean) / X_std
-        X_new_tensor = torch.tensor(X_new_normalized, dtype=torch.float32)
-
-        with torch.no_grad():
-            new_predictions = model(X_new_tensor).numpy()
-
-        # Identify misclassified points
-        misclassified = np.abs(new_predictions - new_events['classification'].values.reshape(-1, 1)) > 0.5
-        if np.any(misclassified):
-            print("Misclassification detected! Adjusting frontline data.")
-
-            # Remove old points in affected areas only if enough new points exist
-            current_df = filter_old_points(current_df, new_events)
-
-        # Track gains/losses
-        track_changes(probabilities, lon_grid, lat_grid)
-
-    # Final Frontline Plot
-    print("Plotting final frontline...")
-    lon_grid, lat_grid, probabilities, _, _, _ = train_and_predict(current_df)
-    plot_frontline(lon_grid, lat_grid, probabilities, current_df, title="Final Frontline")
-
-# Function to plot the frontline
-def plot_frontline(lon_grid, lat_grid, probabilities, current_df, title):
-    fig, ax = plt.subplots(figsize=(12, 7), subplot_kw={'projection': ccrs.PlateCarree()})
-    ax.set_extent([lon_grid.min(), lon_grid.max(), lat_grid.min(), lat_grid.max()], crs=ccrs.PlateCarree())
-
-    ax.add_feature(cfeature.COASTLINE)
+# Function to plot frontline
+def plot_frontline(filtered_grid, current_df, title):
+    plt.figure(figsize=(10, 5))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent([filtered_grid['longitude'].min(), filtered_grid['longitude'].max(),
+                   filtered_grid['latitude'].min(), filtered_grid['latitude'].max()])
     ax.add_feature(cfeature.BORDERS, linestyle=':')
-    ax.add_feature(cfeature.LAND, facecolor='lightgray')
-    ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
+    ax.add_feature(cfeature.COASTLINE)
 
-    # Overlay probability map
-    contour = ax.contourf(lon_grid, lat_grid, probabilities, levels=20, cmap="coolwarm", alpha=0.5, transform=ccrs.PlateCarree())
-    plt.colorbar(contour, ax=ax, label="Probability of 'blue'")
+    # Scatter event points
+    red_points = current_df[current_df['classification'] == 1]
+    blue_points = current_df[current_df['classification'] == 0]
+    plt.scatter(red_points['longitude'], red_points['latitude'], color='red', label='Red Territory Events', s=10)
+    plt.scatter(blue_points['longitude'], blue_points['latitude'], color='blue', label='Blue Territory Events', s=10)
 
-    # Scatter plot of events
-    ax.scatter(current_df['longitude'], current_df['latitude'], c=current_df['classification'], cmap="bwr", edgecolors="k", transform=ccrs.PlateCarree())
+    # Plot frontline (contour at 50% probability)
+    lon_grid = filtered_grid.pivot_table(index='latitude', columns='longitude', values='probability')
+    latitudes = lon_grid.index.values
+    longitudes = lon_grid.columns.values
+    probabilities = lon_grid.values
 
-    # Plot frontline (50% decision boundary)
-    ax.contour(lon_grid, lat_grid, probabilities, levels=[0.5], colors="black", linewidths=2, transform=ccrs.PlateCarree())
-
+    plt.contour(longitudes, latitudes, probabilities, levels=[0.5], colors='black', linewidths=2)
+    plt.legend()
     plt.title(title)
     plt.show()
 
-# Function to track changes over time
-def track_changes(probabilities, lon_grid, lat_grid):
-    global previous_probabilities
+# Track changes in control
+red_gains = []
+blue_gains = []
 
-    if 'previous_probabilities' in globals():
-        frontline_change = probabilities - previous_probabilities
+def track_changes(prev_grid, new_grid):
+    global red_gains, blue_gains
+    
+    # Reset indexes to ensure alignment
+    prev_grid = prev_grid.reset_index(drop=True)
+    new_grid = new_grid.reset_index(drop=True)
+    
+    # Ensure both grids have the same points (same coordinates)
+    # We'll merge them to align the points
+    merged = pd.merge(prev_grid, new_grid, on=['longitude', 'latitude'], suffixes=('_prev', '_new'))
+    
+    # Count changes
+    red_to_blue = ((merged['probability_prev'] > 0.5) & (merged['probability_new'] <= 0.5)).sum()
+    blue_to_red = ((merged['probability_prev'] <= 0.5) & (merged['probability_new'] > 0.5)).sum()
 
-        # Identify where changes occur
-        red_gains = np.sum((frontline_change > 0.5).astype(int))
-        blue_gains = np.sum((frontline_change < -0.5).astype(int))
+    red_gains.append(blue_to_red)
+    blue_gains.append(red_to_blue)  # Positive since blue gained
 
-        if red_gains > blue_gains:
-            print("🔴 Red is advancing!")
-        elif blue_gains > red_gains:
-            print("🔵 Blue is advancing!")
+    print(f"Iteration: Red gained {blue_to_red}, Blue gained {red_to_blue}")
+
+# Function to update frontline over time
+def update_frontline():
+    global initial_grid
+    batch_size = 30
+
+    # Create consistent grid first
+    full_grid = create_filtered_grid(new_df)
+    prev_grid = full_grid.copy()
+    prev_grid['probability'] = 1.0  # Initialize all as blue
+    
+    all_events = pd.DataFrame(columns=new_df.columns)
+
+    for i in range(war_start_idx, len(dates), batch_size):
+        print(i)
+        batch_dates = dates[i:i + batch_size]
+        new_events = new_df[new_df['event_date'].isin(batch_dates)]
+        
+        # Add new events
+        all_events = pd.concat([all_events, new_events], ignore_index=True)
+        
+        # Train and predict using consistent grid
+        filtered_grid = train_and_predict(all_events)
+        
+        # Align grids - ensure same points
+        merged = pd.merge(
+            prev_grid[['longitude', 'latitude', 'probability']],
+            filtered_grid[['longitude', 'latitude', 'probability']],
+            on=['longitude', 'latitude'],
+            suffixes=('_prev', '_new')
+        )
+        
+        # Find changed points
+        moved_mask = (merged['probability_prev'] > 0.5) != (merged['probability_new'] > 0.5)
+        moved_coords = merged[moved_mask][['longitude', 'latitude']]
+        
+        if not moved_coords.empty:
+            # Buffer moved points to define changing regions
+            change_buffers = [Point(lon, lat).buffer(0.1)  # Buffer size in degrees (~5 km)
+                              for lon, lat in zip(moved_coords['longitude'], moved_coords['latitude'])]
+            changed_zone = unary_union(change_buffers)
+        
+            # Keep only old events that are NOT in the changed zone
+            old_events_outside_change = all_events[~all_events.apply(
+                lambda row: changed_zone.contains(Point(row['longitude'], row['latitude'])),
+                axis=1
+            )]
+        
+            # Keep new events as-is, and add them back
+            all_events = pd.concat([old_events_outside_change, new_events], ignore_index=True)
         else:
-            print("No significant change in the frontline.")
+            # If no changes in frontline, simply add new events
+            all_events = pd.concat([all_events, new_events], ignore_index=True)
+        
+        # Calculate red-controlled area percentage (prob > 0.5 means red)
+        red_area = (filtered_grid['probability'] > 0.5).sum()
+        total_area = len(filtered_grid)
+        red_percentage = (red_area / total_area) * 100
+        area_control_percentages.append(red_percentage)
+        # Update for next iteration
+        prev_grid = filtered_grid.copy()
 
-    # Store current probabilities for next iteration
-    previous_probabilities = probabilities.copy()
+    plot_frontline(prev_grid, all_events, "Final Frontline")
 
-# Run the dynamic frontline update
+area_control_percentages = []
 update_frontline()
+
+def plot_area_control():
+    plt.figure(figsize=(10, 4))
+    plt.plot(area_control_percentages, color='darkred', label='Red-Controlled Area %')
+    plt.axhline(50, color='gray', linestyle='--', linewidth=1)
+    plt.xlabel("Iteration (every 30 days)")
+    plt.ylabel("Red-Controlled Area (%)")
+    plt.title("Change in Territorial Control Over Time")
+    plt.ylim(0, 100)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+plot_area_control()
