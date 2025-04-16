@@ -57,7 +57,7 @@ def plot_classification_scatter_window(start_day_index, df):
     plt.grid(True)
 
     # Show plot
-    plt.show()
+    plt.show(block=False)
 
 
 def plot_classification_scatter(df):
@@ -87,7 +87,7 @@ def plot_classification_scatter(df):
     plt.grid(True)
 
     # Show plot
-    plt.show()
+    plt.show(block=False)
 
 def classify_events(df, dictionary):
     """
@@ -105,9 +105,8 @@ def classify_events(df, dictionary):
     Returns:
     pd.DataFrame: A modified DataFrame with the 'classification' column.
     """
-
     # Filter rows where 'actor1' contains 'Russia' or 'Ukraine'
-    df = df[df['actor1'].str.contains('Russia|Ukraine', case=False, na=False)]
+    df = df[df['actor1'].str.contains('Russia|Ukraine', case=False, na=False)].copy()  # Add .copy() to avoid the warning
 
     # Apply classification logic
     def classify(row):
@@ -123,7 +122,7 @@ def classify_events(df, dictionary):
             else:
                 return 1
 
-    df['classification'] = df.apply(classify, axis=1)
+    df.loc[:, 'classification'] = df.apply(classify, axis=1)  # Use .loc to assign values explicitly
 
     return df
 
@@ -154,7 +153,7 @@ def duplicate_armed_clash_events(df):
 # print(new_df)
 
 df = pd.read_csv("data/ACLED_Ukraine_Reduced.csv")
-df["event_date"] = pd.to_datetime(df["event_date"], dayfirst=True)
+df["event_date"] = pd.to_datetime(df["event_date"], format="%Y-%m-%d")
 
 
 behind_actor_1_lines = {
@@ -183,6 +182,8 @@ dates.sort()
 
 # Load GeoJSON file
 
+print("Loading GeoJSON files")
+
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.ops import unary_union
 
@@ -199,9 +200,11 @@ for feature in border_data["features"]:
     elif geom["type"] == "Polygon":
         polygons.append(Polygon(geom["coordinates"][0]))  # Assuming one outer ring in each Polygon
 
+print("Polygons loaded")
 # Create a MultiPolygon object from the individual polygons
 ukraine_polygon = MultiPolygon(polygons) # Changed this line to create MultiPolygon
 
+print("Creating MultiPolygon")
 # If ukraine_polygon is a MultiPolygon, get the exterior of the largest polygon
 if ukraine_polygon.geom_type == 'MultiPolygon':
     # Get the polygon with the largest area
@@ -212,7 +215,7 @@ if ukraine_polygon.geom_type == 'MultiPolygon':
 else:
     # If it's a Polygon, get the exterior directly
     border_coords = list(ukraine_polygon.exterior.coords)
-
+print("Getting border coordinates")
 # Convert to a list of (longitude, latitude) tuples
 border_coords = [(x, y) for x, y in border_coords]
 
@@ -231,6 +234,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from shapely.ops import nearest_points
 
+print("Filtering points")
 
 # Function to filter points inside Ukraine
 def filter_inside_ukraine(df):
@@ -274,8 +278,8 @@ def create_filtered_grid(df):
     lon_min, lon_max = 22.0, 40.0  # Example bounds for Ukraine
     lat_min, lat_max = 44.0, 52.0
     
-    lon_grid = np.linspace(lon_min, lon_max, 400)
-    lat_grid = np.linspace(lat_min, lat_max, 400)
+    lon_grid = np.linspace(lon_min, lon_max, 300)
+    lat_grid = np.linspace(lat_min, lat_max, 300)
     
     grid_points = pd.DataFrame({
         'longitude': np.repeat(lon_grid, len(lat_grid)),
@@ -288,6 +292,7 @@ def create_filtered_grid(df):
 def train_and_predict(current_df):
     X = current_df[['longitude', 'latitude']].values
     y = current_df['classification'].values.astype(np.float32)
+    weights = current_df['weight'].values.astype(np.float32)  # Use the weight column
 
     # Normalize input features
     X_mean, X_std = X.mean(axis=0), X.std(axis=0)
@@ -296,10 +301,11 @@ def train_and_predict(current_df):
     # Convert to PyTorch tensors
     X_tensor = torch.tensor(X_normalized, dtype=torch.float32)
     y_tensor = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
+    weights_tensor = torch.tensor(weights, dtype=torch.float32).unsqueeze(1)  # Convert weights to tensor
 
     # Initialize neural network
     model = FrontlineNN()
-    criterion = nn.BCELoss()
+    criterion = nn.BCELoss(reduction='none')  # Use 'none' to calculate per-sample loss
     optimizer = optim.Adam(model.parameters(), lr=0.01)
 
     # Train the model
@@ -307,8 +313,9 @@ def train_and_predict(current_df):
     for _ in range(epochs):
         optimizer.zero_grad()
         y_pred = model(X_tensor)
-        loss = criterion(y_pred, y_tensor)
-        loss.backward()
+        loss = criterion(y_pred, y_tensor)  # Calculate per-sample loss
+        weighted_loss = (loss * weights_tensor).mean()  # Apply weights to the loss
+        weighted_loss.backward()
         optimizer.step()
 
     filtered_grid = create_filtered_grid(current_df)
@@ -348,7 +355,7 @@ def plot_frontline(filtered_grid, current_df, title):
     plt.contour(longitudes, latitudes, probabilities, levels=[0.5], colors='black', linewidths=2)
     plt.legend()
     plt.title(title)
-    plt.show()
+    plt.show(block=False)
 
 # Track changes in control
 red_gains = []
@@ -376,8 +383,9 @@ def track_changes(prev_grid, new_grid):
 
 # Function to update frontline over time
 def update_frontline():
+    print("Updating frontline...")
     global initial_grid
-    batch_size = 30
+    batch_size = 7
 
     # Create consistent grid first
     full_grid = create_filtered_grid(new_df)
@@ -385,15 +393,33 @@ def update_frontline():
     prev_grid['probability'] = 1.0  # Initialize all as blue
     
     all_events = pd.DataFrame(columns=new_df.columns)
+    all_events['weight'] = []  # Initialize empty weight column
+    area_control_percentages = []
+
+    # Initialize lists to store data for the files
+    frontline_data = {}  # For JSON file
+    area_data = []  # For CSV file
 
     for i in range(war_start_idx, len(dates), batch_size):
+        if i + batch_size >= len(dates):
+            break
         print(i)
         batch_dates = dates[i:i + batch_size]
-        new_events = new_df[new_df['event_date'].isin(batch_dates)]
+        new_events = new_df[new_df['event_date'].isin(batch_dates)].copy()  # Explicitly create a copy
+        new_events.loc[:, 'weight'] = 1.0  # New points start with full weight
         
-        # Add new events
-        all_events = pd.concat([all_events, new_events], ignore_index=True)
+        # Decay weights of old points
+        all_events['weight'] *= 0.95  # Decay weights by 10% each iteration
         
+        # Combine old and new points
+        if not new_events.empty and not new_events.isna().all(axis=None):
+            all_events = pd.concat([all_events, new_events], ignore_index=True)
+        
+        # Remove points older than 120 days
+        latest_date = max(batch_dates)
+        cutoff_date = latest_date - pd.Timedelta(days=400)
+        all_events = all_events[all_events['event_date'] >= cutoff_date]
+
         # Train and predict using consistent grid
         filtered_grid = train_and_predict(all_events)
         
@@ -415,30 +441,110 @@ def update_frontline():
                               for lon, lat in zip(moved_coords['longitude'], moved_coords['latitude'])]
             changed_zone = unary_union(change_buffers)
         
-            # Keep only old events that are NOT in the changed zone
-            old_events_outside_change = all_events[~all_events.apply(
-                lambda row: changed_zone.contains(Point(row['longitude'], row['latitude'])),
-                axis=1
-            )]
-        
-            # Keep new events as-is, and add them back
-            all_events = pd.concat([old_events_outside_change, new_events], ignore_index=True)
-        else:
-            # If no changes in frontline, simply add new events
-            all_events = pd.concat([all_events, new_events], ignore_index=True)
+            # Keep all points (no deletion within buffer zone)
+            # Points are already filtered by age above
+            pass
         
         # Calculate red-controlled area percentage (prob > 0.5 means red)
         red_area = (filtered_grid['probability'] > 0.5).sum()
         total_area = len(filtered_grid)
         red_percentage = (red_area / total_area) * 100
         area_control_percentages.append(red_percentage)
+
+        frontline_data, area_data = save_frontline_and_area_data(batch_dates[0], filtered_grid, red_percentage, frontline_data, area_data)
+
         # Update for next iteration
         prev_grid = filtered_grid.copy()
 
-    plot_frontline(prev_grid, all_events, "Final Frontline")
+        
 
-area_control_percentages = []
-update_frontline()
+    # After the update_frontline loop, save the data to files
+    with open('frontline_data.json', 'w') as json_file:
+        json.dump(frontline_data, json_file, indent=4)
+
+    area_df = pd.DataFrame(area_data)
+    area_df.to_csv('area_data.csv', index=False)
+
+    plot_frontline(prev_grid, all_events, "Final Frontline")
+    return area_control_percentages
+
+
+def save_frontline_and_area_data(batch_start_date, filtered_grid, red_percentage, frontline_data, area_data):
+    """
+    Saves the frontline coordinates and area data for each batch.
+    """
+    # Extract frontline coordinates (contour at 50% probability)
+    lon_grid = filtered_grid.pivot_table(index='latitude', columns='longitude', values='probability')
+    latitudes = lon_grid.index.values
+    longitudes = lon_grid.columns.values
+    probabilities = lon_grid.values
+
+    # Create a contour plot to extract the 50% probability contour
+    fig, ax = plt.subplots()
+    contour = ax.contour(longitudes, latitudes, probabilities, levels=[0.5])
+    plt.close(fig)  # Close the figure since we only need the contour data
+
+    # Extract the frontline coordinates from the contour
+    frontline_coords = []
+    for segment in contour.allsegs[0]:  # Extract segments at the first (and only) contour level
+        frontline_coords.append(segment.tolist())
+
+    # Store the frontline coordinates in JSON format
+    frontline_data[batch_start_date.strftime('%Y-%m-%d')] = frontline_coords
+
+    # Calculate the area controlled by red (probability > 0.5)
+    red_area = (filtered_grid['probability'] > 0.5).sum() * 0.01  # Assuming each grid cell is 0.01 sq km
+    total_area = len(filtered_grid) * 0.01  # Total area in sq km
+    percent_of_ukraine = (red_area / total_area) * 100
+
+    # Append data for the CSV file
+    area_data.append({
+        'start_date': batch_start_date,
+        'area_sq_km': red_area,
+        'percent_of_ukraine': percent_of_ukraine
+    })
+
+    return frontline_data, area_data
+    """
+    Saves the frontline coordinates and area data for each batch.
+    """
+    # Extract frontline coordinates (contour at 50% probability)
+    lon_grid = filtered_grid.pivot_table(index='latitude', columns='longitude', values='probability')
+    latitudes = lon_grid.index.values
+    longitudes = lon_grid.columns.values
+    probabilities = lon_grid.values
+
+    # Create a contour plot to extract the 50% probability contour
+    fig, ax = plt.subplots()
+    contour = ax.contour(longitudes, latitudes, probabilities, levels=[0.5])
+    plt.close(fig)  # Close the figure since we only need the contour data
+
+    # Extract the frontline coordinates from the contour
+    frontline_coords = []
+    for collection in contour.collections:
+        for path in collection.get_paths():
+            vertices = path.vertices
+            frontline_coords.append(vertices.tolist())
+
+    # Store the frontline coordinates in JSON format
+    frontline_data[batch_start_date.strftime('%Y-%m-%d')] = frontline_coords
+
+    # Calculate the area controlled by red (probability > 0.5)
+    red_area = (filtered_grid['probability'] > 0.5).sum() * 0.01  # Assuming each grid cell is 0.01 sq km
+    total_area = len(filtered_grid) * 0.01  # Total area in sq km
+    percent_of_ukraine = (red_area / total_area) * 100
+
+    # Append data for the CSV file
+    area_data.append({
+        'start_date': batch_start_date,
+        'area_sq_km': red_area,
+        'percent_of_ukraine': percent_of_ukraine
+    })
+
+    return frontline_data, area_data
+
+
+area_control_percentages = update_frontline()
 
 def plot_area_control():
     plt.figure(figsize=(10, 4))
