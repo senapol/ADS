@@ -23,3 +23,16 @@ result = seasonal_decompose(
 print(result)
 result.plot()
 plt.show()
+
+trend = result.trend
+
+trend_df = pd.DataFrame({
+    'net_flow': ts,
+    'trend': trend
+})
+
+trend_df.to_csv('data/germany_oil_trend.csv', index=False)
+trend_df['brent_price_usd'] = data['brent_price_usd']
+
+correlation = trend_df['trend'].corr(trend_df['brent_price_usd'])
+print(f'Corr between germany gas flow trend and brent oil price: {correlation}')

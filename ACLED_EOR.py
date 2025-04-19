@@ -16,27 +16,46 @@ from sklearn.ensemble import RandomForestRegressor
 from scipy.signal import savgol_filter
 import numpy as np
 
-def create_combined_events():
+def create_combined_events(x):
     acled_df = pd.read_csv('data/ACLED_Ukraine_Reduced.csv')
     eor_df = pd.read_csv('data/events.csv')
 
     # standardising
     acled_df['event_date'] = pd.to_datetime(acled_df['event_date'])
     eor_df['date'] = pd.to_datetime(eor_df['date'])
+    # eor_df['categories'] = eor_df['categories'].replace("'")
     print('standardised dates')
 
     acled_df['source_dataset'] = 'ACLED'
     eor_df['source_dataset'] = 'EOR'
 
-    # EOR TO ACLED EVENT TYPE MAPPING
-    # event_type_mapping = {
-    #     'Russian Military Presence': 
-    # }
+    #EOR TO ACLED EVENT TYPE MAPPING
+    eor_to_acled_mapping = {
+        'Ground battle': {'event_type': 'Battles', 'sub_event_type': 'Armed clash'},
+        'Russian Military Losses': {'event_type': 'Battles', 'sub_event_type': 'Armed clash'},
+        'Ukrainian miitary losses': {'event_type': 'Battles', 'sub_event_type': 'Armed clash'},
+        'Russian allies movements or losses': {'event_type': 'Battles', 'sub_event_type': 'Armed clash'},
+        'Russian Firing Positions': {'event_type': 'Battles', 'sub_event_type': 'Armed clash'},
+        'Russian Military Presence': {'event_type': 'Stategic developments', 'sub_event_type': 'Headquarters or base established'},
+        'Bombing or explosion': {'event_type': 'Explosions/Remote violence', 'sub_event_type': 'Shelling/artillery/missile attack'},
+        'Minitions': {'event_type': 'Explosions/Remote violence', 'sub_event_type': 'Shelling/artillery/missile attack'},
+        'Civilian Casualty': {'event_type': 'Violence against civilians', 'sub_event_type': 'Attack'},
+        'Civilian Infrastructure Damage' : {'event_type': 'Violence against civilians', 'sub_event_type': 'Attack'},
+        'Environmental harm': {'event_type': 'Strategic developments', 'sub_event_type': 'Looting/property destruction'},
+        'Mass grave or Burial': {'event_type': 'Violence against civilians', 'sub_event_type': 'Attack'},
+        'Protest': {'event_type': 'Protests', 'sub_event_type': 'Peaceful protest'},
+        'Detention or Arrest': {'event_type': 'Strategic developments', 'sub_event_type': 'Arrests'},
+        'Military Infrastructure Damage': {'event_type': 'Strategic developments', 'sub_event_type': 'Looting/property destruction'},
+        'Propaganda': {'event_type': 'Strategic developments', 'sub_event_type': 'Other'},
+        'Other': {'event_type': 'Strategic developments', 'sub_event_type': 'Other'}
+    }
+    
 
     standard_columns = [
         'date',
         'latitude', 'longitude',
         'event_type',
+        'sub_event_type',
         'location',
         'admin1',
         'description',
@@ -49,6 +68,7 @@ def create_combined_events():
         'latitude': acled_df['latitude'],
         'longitude': acled_df['longitude'],
         'event_type': acled_df['event_type'],
+        'sub_event_type': acled_df['sub_event_type'],
         'location': acled_df['location'],
         'admin1': acled_df['admin1'],
         'description': acled_df['notes'],
@@ -60,7 +80,8 @@ def create_combined_events():
         'date': eor_df['date'],
         'latitude': eor_df['latitude'],
         'longitude': eor_df['longitude'],
-        'event_type': eor_df['categories'],
+        'event_type': eor_to_acled_mapping[eor_df['categories']]['event_type'],
+        'sub_event_type': eor_to_acled_mapping[eor_df['subcategories']]['sub_event_type'],
         'location': eor_df['city'],
         'admin1': eor_df['province'],
         'description': eor_df['description'],
@@ -76,7 +97,7 @@ def create_combined_events():
     combined_df = combined_df[combined_df['date'] >= '2020-01-01']
     print(combined_df.head())
 
-    combined_df.to_csv('data/combined_events.csv', index=False)
+    combined_df.to_csv(f'data/combined_events{str(x)}.csv', index=False)
 
 def calculate_event_density(df, date, radius=20):
     print('Calculating event density')
@@ -97,277 +118,37 @@ def calculate_event_density(df, date, radius=20):
     
     return density
 
-def extract_frontline(df, date, method='dbscan'): # density based spatial clustering of applications with noise'''
-
-    # https://hogonext.com/how-to-combine-clustering-with-regression-for-prediction/
-    # https://www.jstor.org/stable/20441166
-    print(f'Extracting frontline for {date}')
+def extract_frontline_density(df, date, window=60):
+    # Filter for events in time window
+    start_date = date - pd.Timedelta(days=window)
+    events = df[(df['date'] <= date) & (df['date'] >= start_date)].copy()
     
-    events = df[df['date'] <= date].copy()
-    coords = events[['latitude', 'longitude']].values
-
-    print('Using DBSCAN for clustering')
-    clustering = DBSCAN(eps=0.1, min_samples=5).fit(coords)
-
-    events['cluster'] = clustering.labels_
-
-    frontlines = {}
-
-    for cluster_id in sorted(set(clustering.labels_)):
-        if cluster_id == -1: # noise
-            continue
-        
-        cluster_points = events[events['cluster'] == cluster_id]
-
-        if len(cluster_points) < 10: # not enough points to fit a model
-            continue
-
-        print('Random forest regression model to extract front line')
-
-        n_estimators = 100
-        X = events['longitude'].values.reshape(-1,1)
-        y = events['latitude'].values
-
-        #train RFR model
-        rf_model = RandomForestRegressor(n_estimators=n_estimators, random_state=42)
-        rf_model.fit(X, y)
-
-        x_dense = np.linspace(X.min(), X.max(), 200).reshape(-1, 1)
-
-        y_pred = rf_model.predict(x_dense)
-
-        y_smooth = savgol_filter(y_pred, window_length=15, polyorder=3)
-
-        frontline = np.column_stack((x_dense.flatten(), y_smooth))
-        frontlines[date] = frontline
-
-    if method == 'kde': # kernel density estimation
-        pass
-
+    # Create a grid over Ukraine
+    lon_min, lon_max = events['longitude'].min() - 0.5, events['longitude'].max() + 0.5
+    lat_min, lat_max = events['latitude'].min() - 0.5, events['latitude'].max() + 0.5
+    
+    grid_size = 100
+    lon_grid, lat_grid = np.mgrid[lon_min:lon_max:grid_size*1j, lat_min:lat_max:grid_size*1j]
+    positions = np.vstack([lon_grid.ravel(), lat_grid.ravel()])
+    
+    # Calculate density using Gaussian KDE
+    from scipy.stats import gaussian_kde
+    points = events[['longitude', 'latitude']].values.T
+    kde = gaussian_kde(points)
+    density = kde(positions).reshape(grid_size, grid_size)
+    
+    # Extract contour at a specific density threshold
+    from skimage import measure
+    contours = measure.find_contours(density, 0.3 * density.max())
+    
+    # Convert contour indices to geographic coordinates
+    frontlines = []
+    for contour in contours:
+        lon_scaled = lon_min + contour[:, 1] * (lon_max - lon_min) / grid_size
+        lat_scaled = lat_min + contour[:, 0] * (lat_max - lat_min) / grid_size
+        frontlines.append(np.column_stack([lon_scaled, lat_scaled]))
+    
     return frontlines
-
-
-def visualise_map():
-    print('Loading combined data')
-
-    df = pd.read_csv('data/combined_events.csv')
-    df['date'] = pd.to_datetime(df['date'])
-    df = df.sort_values('date')
-    df = df.reset_index(drop=True, inplace=True)
-    df['month_year'] = df['date'].dt.strftime('%Y-%m')
-
-    df_acled = df[df['source_dataset'] == 'ACLED']
-    df_eor = df[df['source_dataset'] == 'EOR']
-
-    fig = make_subplots()
-
-    print('creating initial figure')
-
-    fig_acled = px.scatter_mapbox(
-        df_acled,
-        lat='latitude',
-        lon='longitude',
-        color='event_type',
-        hover_name='location',
-        hover_data={
-            'date': True,
-            'event_type': True,
-            'source_dataset': True,
-            'description': True,
-            'latitude': False,
-            'longitude': False
-        },
-        animation_frame='month_year',
-        mapbox_style="carto-positron",
-        zoom=5,
-        center={"lat": 49.0, "lon": 31.0},
-        height=800,
-        width=1200,
-        title='Ukraine Conflict Events (ACLED & Eyes on Russia)'
-    )
-
-    fig_eor = px.scatter_mapbox(
-        df_eor,
-        lat='latitude',
-        lon='longitude',
-        color='event_type',
-        hover_name='location',
-        hover_data={
-            'date': True,
-            'event_type': True,
-            'source_dataset': True,
-            'description': True,
-            'latitude': False,
-            'longitude': False
-        },
-        animation_frame='month_year',
-        mapbox_style="carto-positron",
-        zoom=5,
-        center={"lat": 49.0, "lon": 31.0}
-    )
-
-    print('Adding traces to figure')
-    for trace in fig_acled.data:
-        trace.name = f"ACLED - {trace.name}" if hasattr(trace, 'name') else "ACLED"
-        fig.add_trace(trace)
-
-    for trace in fig_eor.data:
-        trace.name = f"Eyes on Russia - {trace.name}" if hasattr(trace, 'name') else "EOR"
-        fig.add_trace(trace)
-
-    frames = []
-
-    print('Calculating frontlines for each month')
-
-    frontlines_by_month = {}
-
-    sample_months=sorted(df['month_year'].unique())[::3] # every 3 months
-
-
-    for month_year in sorted(df['month_year'].unique()):
-        # get frames for this month from both figs
-        acled_frame = next((f for f in fig_acled.frames if f.name == month_year), None)
-        eor_frame = next((f for f in fig_eor.frames if f.name == month_year), None)
-        
-        if acled_frame and eor_frame:
-            # combine the data from both frames
-            combined_data = list(acled_frame.data) + list(eor_frame.data)
-            frames.append(go.Frame(data=combined_data, name=month_year))
-
-    fig.frames = frames
-
-    # animation controls and layout
-    fig.update_layout(
-        title='Ukraine Conflict Events (ACLED & Eyes on Russia)',
-        mapbox=dict(
-            style="carto-positron",
-            zoom=5,
-            center={"lat": 49.0, "lon": 31.0}
-        ),
-        height=800,
-        width=1200,
-        
-        updatemenus=[
-            {
-                "buttons": [
-                    {
-                        "args": [None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}],
-                        "label": "Play",
-                        "method": "animate"
-                    },
-                    {
-                        "args": [[None], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate", "transition": {"duration": 0}}],
-                        "label": "Pause",
-                        "method": "animate"
-                    }
-                ],
-                "direction": "left",
-                "pad": {"r": 10, "t": 10},
-                "showactive": False,
-                "type": "buttons",
-                "x": 0.1,
-                "xanchor": "right",
-                "y": 0,
-                "yanchor": "top"
-            }
-        ],
-        
-        sliders=[{
-            "active": 0,
-            "yanchor": "top",
-            "xanchor": "left",
-            "currentvalue": {
-                "font": {"size": 20},
-                "prefix": "Date: ",
-                "visible": True,
-                "xanchor": "center"
-            },
-            "transition": {"duration": 300, "easing": "cubic-in-out"},
-            "pad": {"b": 10, "t": 50},
-            "len": 0.9,
-            "x": 0.1,
-            "y": 0,
-            "steps": [
-                {
-                    "args": [
-                        [frame.name],
-                        {"frame": {"duration": 300, "redraw": True},
-                        "mode": "immediate",
-                        "transition": {"duration": 300}}
-                    ],
-                    "label": frame.name,
-                    "method": "animate"
-                } for frame in fig.frames
-            ]
-        }],
-        
-        legend=dict(
-            orientation="v",
-            yanchor="top",
-            y=0.99,
-            xanchor="left",
-            x=0.01,
-            bgcolor="rgba(255, 255, 255, 0.8)"
-        )
-    )
-
-    acled_indices = [i for i, trace in enumerate(fig.data) if 'ACLED' in trace.name]
-    eor_indices = [i for i, trace in enumerate(fig.data) if 'EOR' in trace.name]
-
-    print('sorting buttons')
-    # visibility settings for each button
-    all_visible = [True] * len(fig.data)
-    acled_only = [i in acled_indices for i in range(len(fig.data))]
-    eor_only = [i in eor_indices for i in range(len(fig.data))]
-
-    # source filter buttons
-    buttons = [
-        dict(
-            label="All Sources",
-            method="update",
-            args=[{"visible": all_visible}]
-        ),
-        dict(
-            label="ACLED Only",
-            method="update",
-            args=[{"visible": acled_only}]
-        ),
-        dict(
-            label="Eyes on Russia Only",
-            method="update",
-            args=[{"visible": eor_only}]
-        ),
-        dict(
-            label="Reset View",
-            method="relayout",
-            args=[{"mapbox.center": {"lat": 49.0, "lon": 31.0}, "mapbox.zoom": 5}]
-        )
-    ]
-
-    # add buttons to layout
-    fig.update_layout(
-        updatemenus=[
-            # first updatemenus item is the animation control
-            fig.layout.updatemenus[0],
-            # add source filters as second updatemenus item
-            dict(
-                buttons=buttons,
-                direction="down",
-                pad={"r": 10, "t": 10},
-                showactive=True,
-                x=0.9,
-                xanchor="right",
-                y=0.99,
-                yanchor="top",
-                bgcolor="rgba(255, 255, 255, 0.8)",
-                bordercolor="rgba(0, 0, 0, 0.5)"
-            )
-        ]
-    )
-
-    print('saving to html')
-    # save to HTML
-    fig.write_html("Ukraine_Conflict_Map.html")
 
 def model():
     print('Creating model..')
@@ -399,5 +180,47 @@ def model():
     print('data in time series:')
     print(df.sample(10))
 
+def print_event_types():
+    # create_combined_events(2)
+    df = pd.read_csv('data/combined_events.csv')
 
-model()
+    df_eor = df[df['source_dataset'] == 'EOR']
+    # df_eor['date'] = pd.to_datetime(df_eor['date'])
+    eor_types = []
+    for event in df_eor['event_type']:
+        i = 0
+        for e in event.replace("'", "").replace('"', '').replace(']', '').replace('[', '').split(','):
+            i += 1
+            if i > 1:
+                print('multiple event types:', event)
+            if e not in eor_types:
+                eor_types.append(e.strip())
+    eor_types.sort()
+    print('EOR event types:', set(eor_types))
+
+    df_acled = df[df['source_dataset'] == 'ACLED']
+    # df_acled['date'] = pd.to_datetime(df_acled['date'])
+    acled_types = df_acled['event_type'].unique()
+    print('ACLED event types:', set(acled_types))
+
+    #min max dates@
+    print('Max/min dates:\n----------------------------')
+    print('ACLED min date:', df_acled['date'].min())
+    print('ACLED max date:', df_acled['date'].max())
+
+    print('EOR min date:', df_eor['date'].min())
+    print('EOR max date:', df_eor['date'].max())
+    print('Combined min date:', df['date'].min())
+    print('Combined max date:', df['date'].max())
+    print('----------------------------')
+    print('ACLED count:', len(df_acled))
+    print('EOR count:', len(df_eor))
+    print('----------------------------')
+    #sum per event type
+    print('ACLED event type counts:')
+    print(df_acled['event_type'].value_counts())
+    print('----------------------------')
+    print('EOR event type counts:')
+    print(df_eor['event_type'].value_counts())
+
+print_event_types()

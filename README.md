@@ -63,3 +63,8 @@ This data is used to build our understanding of the economic side of the Ukraine
 
 Testing correlation between the economic markers and 1) the number of events per year 2) change in frontline
 OR the war markers with the military expenditure/militarty aid
+
+# Part 4: Time series analysis
+Time series modelling allows us to decompose data into seasonal, trend, and noise data. This will allow us to calculate the correlation without being affected by other large, omittable factors (i.e. the summer/winter cycle of oil expenditure).
+
+Method: seasonal_decomposition function from the statsmodel library

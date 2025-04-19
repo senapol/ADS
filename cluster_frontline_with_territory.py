@@ -676,7 +676,6 @@ if __name__ == "__main__":
             )
             print(f"Occupied territory area: {area_sq_km:.2f} square kilometers")
     
-    # Analyse territorial changes over time
     results = analyse_territorial_changes_over_time(
         df,
         start_date='2022-01-01', 

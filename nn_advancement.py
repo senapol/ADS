@@ -454,3 +454,106 @@ def plot_area_control():
     plt.show()
 
 plot_area_control()
+
+import pandas as pd
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import matplotlib.pyplot as plt
+from datetime import datetime
+import os
+
+def extract_monthly_frontlines(df, start_date='2022-02-01', end_date='2023-12-31'):
+    """Extract front line coordinates for each month in the date range"""
+    
+    # Ensure dates are datetime
+    df['event_date'] = pd.to_datetime(df['event_date'])
+    
+    # Convert date strings to datetime
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
+    
+    # Create output directory
+    os.makedirs('frontline_data', exist_ok=True)
+    
+    # Generate monthly periods
+    months = pd.date_range(start=start_date, end=end_date, freq='M')
+    
+    # Store all frontlines for visualization
+    all_frontlines = {}
+    
+    # Process each month
+    for i, month_end in enumerate(months):
+        month_start = month_end.replace(day=1)
+        month_name = month_end.strftime('%Y-%m')
+        
+        print(f"Processing {month_name}...")
+        
+        # Get all data up to this month (or use a sliding window if preferred)
+        current_df = df[df['event_date'] <= month_end].copy()
+        
+        # Skip if not enough data
+        if len(current_df) < 20:
+            print(f"Not enough data for {month_name}, skipping")
+            continue
+        
+        # Train and predict
+        lon_grid, lat_grid, probabilities, model, X_mean, X_std = train_and_predict(current_df)
+        
+        # Extract the front line (0.5 probability contour)
+        frontline_coords = extract_contour_coords(lon_grid, lat_grid, probabilities)
+        
+        # Save frontline to file
+        save_frontline(frontline_coords, month_name)
+        
+        # Store for visualization
+        all_frontlines[month_name] = frontline_coords
+        
+        # Visualize (optional)
+        if i % 3 == 0:  # Visualize every 3 months to avoid too many plots
+            plot_frontline(lon_grid, lat_grid, probabilities, current_df, 
+                          title=f"Frontline: {month_name}")
+    
+    return all_frontlines
+
+def extract_contour_coords(lon_grid, lat_grid, probabilities):
+    """Extract coordinates of the 0.5 probability contour (the front line)"""
+    from skimage import measure
+    
+    # Find the contour at the 0.5 level (the decision boundary)
+    contours = measure.find_contours(probabilities, 0.5)
+    
+    # Get the longest contour (main front line)
+    if contours:
+        main_contour = max(contours, key=len)
+        
+        # Convert from grid indices to geographic coordinates
+        rows, cols = main_contour[:, 0], main_contour[:, 1]
+        
+        # Map back to lon/lat coordinates
+        lat_min, lat_max = lat_grid.min(), lat_grid.max()
+        lon_min, lon_max = lon_grid.min(), lon_grid.max()
+        
+        lats = lat_min + (rows / probabilities.shape[0]) * (lat_max - lat_min)
+        lons = lon_min + (cols / probabilities.shape[1]) * (lon_max - lon_min)
+        
+        # Combine into coordinate pairs
+        return np.column_stack([lons, lats])
+    
+    return np.array([])  # Empty array if no contours found
+
+def save_frontline(frontline_coords, month_name):
+    """Save frontline coordinates to CSV file"""
+    if len(frontline_coords) > 0:
+        frontline_df = pd.DataFrame(frontline_coords, columns=['longitude', 'latitude'])
+        frontline_df['month'] = month_name
+        
+        filename = f'frontline_data/frontline_{month_name}.csv'
+        frontline_df.to_csv(filename, index=False)
+        print(f"Saved frontline to {filename}")
+    else:
+        print(f"No frontline generated for {month_name}")
+
+# Add this to the existing code, then call:
+frontlines = extract_monthly_frontlines(new_df, '2022-02-01', '2023-12-31')
