@@ -80,7 +80,7 @@ def load_acled_data(csv_path='ACLED_Ukraine_Reduced.csv'):
     # Calculate weights
     current_date = acled['event_date'].max()
     acled['age_weeks'] = (current_date - acled['event_date']).dt.days / 7
-    acled['weight'] = np.exp(-0.05 * acled['age_weeks'])  # Slower decay
+    acled['weight'] = np.exp(-0.01 * acled['age_weeks'])  # Slower decay
 
     acled['week'] = acled['event_date'].dt.to_period('W').apply(lambda r: r.start_time)
     return acled
