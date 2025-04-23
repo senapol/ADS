@@ -60,7 +60,7 @@ def load_acled_data(csv_path='ACLED_Ukraine_Reduced.csv'):
     # Calculate weights
     current_date = acled['event_date'].max()
     acled['age_weeks'] = (current_date - acled['event_date']).dt.days / 7
-    acled['weight'] = np.exp(-0.15 * acled['age_weeks'])  # Slower decay
+    acled['weight'] = np.exp(-0.05 * acled['age_weeks'])  # Slower decay
 
     acled['week'] = acled['event_date'].dt.to_period('W').apply(lambda r: r.start_time)
     return acled
@@ -319,7 +319,7 @@ def plot_frontline_with_controls(node_history, acled):
         title="Ukraine Frontline Evolution with Territorial Control"
     )
 
-    html_file = 'ukraine_frontline_territorial.html'
+    html_file = 'ukraine_frontline_territorial2.html'
     fig.write_html(html_file)
     webbrowser.open(html_file)
 
@@ -336,3 +336,17 @@ if __name__ == '__main__':
 
     # Visualize
     plot_frontline_with_controls(frontline_history, acled)
+
+    # Create a list of rows where each row is (week, [[lat1, lon1], [lat2, lon2], ..., [latN, lonN]])
+    rows = []
+    for df in frontline_history:
+        week = df['week'].iloc[0].date()
+        latlons = df[['latitude', 'longitude']].values.tolist()  # List of [lat, lon]
+        rows.append({'week': week, 'nodes': latlons})
+
+    # Convert to DataFrame
+    structured_df = pd.DataFrame(rows)
+
+    # Save to CSV, converting lists to strings for CSV compatibility
+    structured_df.to_csv('weekly_frontline_structured_nodes.csv', index=False)
+    print("Saved structured weekly frontline nodes to 'weekly_frontline_structured_nodes.csv'")
