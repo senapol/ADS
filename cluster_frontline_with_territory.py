@@ -14,8 +14,8 @@ import json
 import pyproj
 # from functools import partial
 from shapely.ops import transform
-import warnings
-warnings.filterwarnings('ignore')
+
+from calculate_territory import create_territory_polygon
 
 output = 'frontline_output'
 
@@ -43,7 +43,7 @@ def prevent_west_zigzag(coords, penalty=2.0):
 
     return np.array(corrected_frontline)
 
-def detect_stable_frontline(df, date, window=60, eps_values=[0.08, 0.12, 0.16], min_samples_values=[3, 5, 7], weight_by_density=True):
+def detect_stable_frontline(df, date, window=60, eps_values=[0.08, 0.12, 0.16], min_samples_values=[3, 5, 7], weight_by_density=True) -> tuple:
     'Create a consensus frontline using multiple DBSCAN runs with different parameters'
     print(f'Creating consensus front line for {date}')
     
@@ -307,145 +307,6 @@ def detect_stable_frontline(df, date, window=60, eps_values=[0.08, 0.12, 0.16], 
     
     return final_frontline, combat_events
 
-def create_territory_polygon(frontline_coords, border_coords, eastern_border_lon=40.5):
-    """
-    Create a polygon representing the territory between the frontline and eastern border.
-    Parameters:
-    - frontline_coords: array of [lon, lat] frontline coordinates
-    - border_coords: tuple of (lats, lons) arrays for Ukraine border
-    - eastern_border_lon: longitude of default eastern border if border_coords is None
-    Returns:
-    - Polygon object representing the territory
-    - Area in sqkm
-    """
-    if frontline_coords is None or len(frontline_coords) < 3:
-        print("Not enough frontline points to create territory polygon")
-        return None, 0
-    
-    # create a LineString from the frontline
-    frontline = LineString(frontline_coords)
-    
-    # get N and S extent of the frontline
-    north_lat = max(frontline_coords[:, 1])
-    south_lat = min(frontline_coords[:, 1])
-    
-    # find eastern border segments
-    if border_coords is not None:
-        try:
-            lats, lons = border_coords
-            border_points = np.column_stack([lons, lats])
-            border = LineString(border_points)
-            
-            # simplify by finding points with longitude > certain threshold
-            east_lon_threshold = np.median(frontline_coords[:, 0])  # use median frontline longitude
-            eastern_border_points = []
-            
-            for i, lon in enumerate(lons):
-                if lon > east_lon_threshold:
-                    eastern_border_points.append((lon, lats[i]))
-            
-            # if enough eastern border points found, create a LineString
-            if len(eastern_border_points) >= 2:
-                eastern_border = LineString(eastern_border_points)
-            else:
-                # fallback: create vertical line at eastern_border_lon
-                print("Not enough eastern border points found, using fallback")
-                eastern_border = LineString([
-                    (eastern_border_lon, north_lat + 0.5),
-                    (eastern_border_lon, south_lat - 0.5)
-                ])
-        except Exception as e:
-            print(f"Error processing border: {e}, using fallback")
-            # Fallback to a vertical line
-            eastern_border = LineString([
-                (eastern_border_lon, north_lat + 0.5),
-                (eastern_border_lon, south_lat - 0.5)
-            ])
-    else:
-        # if no border provided, use vertical line at eastern_border_lon as eastern border
-        eastern_border = LineString([
-            (eastern_border_lon, north_lat + 0.5),
-            (eastern_border_lon, south_lat - 0.5)
-        ])
-    
-    # extract coords from border and frontline
-    eastern_coords = list(eastern_border.coords)
-    frontline_coords_list = list(frontline.coords)
-    
-    # find northmost and southmost points
-    try:
-        # find the northmost point on the frontline (max lat)
-        north_frontline_idx = np.argmax([p[1] for p in frontline_coords_list])
-        north_frontline_point = frontline_coords_list[north_frontline_idx]
-        
-        # northmost point on the eastern border
-        north_eastern_idx = np.argmax([p[1] for p in eastern_coords])
-        north_eastern_point = eastern_coords[north_eastern_idx]
-        
-        # southmost point on the frontline (min lat)
-        south_frontline_idx = np.argmin([p[1] for p in frontline_coords_list])
-        south_frontline_point = frontline_coords_list[south_frontline_idx]
-        
-        # southmost point on the eastern border
-        south_eastern_idx = np.argmin([p[1] for p in eastern_coords])
-        south_eastern_point = eastern_coords[south_eastern_idx]
-    except Exception as e:
-        print(f"Error finding extremal points: {e}")
-        return None, 0
-    
-    # create N and S connectors
-    north_connector_coords = [north_frontline_point, north_eastern_point]
-    south_connector_coords = [south_frontline_point, south_eastern_point]
-    
-    # make sure the polygon is properly oriented for closure
-    # frontline should be S-N if eastern border is N-S
-    frontline_is_northward = frontline_coords_list[0][1] < frontline_coords_list[-1][1]
-    eastern_is_southward = eastern_coords[0][1] > eastern_coords[-1][1]
-    
-    # orient frontline S-N if needed
-    if not frontline_is_northward:
-        frontline_coords_list = frontline_coords_list[::-1]
-    
-    # orient eastern border from N-S if needed
-    if not eastern_is_southward:
-        eastern_coords = eastern_coords[::-1]
-    
-    # combine all coordinates into a closed polygon
-    # order: frontline (south to north), north connector, eastern border (north to south), south connector
-    polygon_coords = frontline_coords_list + north_connector_coords + eastern_coords + south_connector_coords[::-1]
-    
-    # create a Shapely Polygon
-    try:
-        territory_polygon = Polygon(polygon_coords)
-        
-        if not territory_polygon.is_valid:
-            print("Invalid polygon, attempting to fix")
-            territory_polygon = territory_polygon.buffer(0)  # fixes invalid polygons
-            
-            if not territory_polygon.is_valid:
-                print("Could not create a valid polygon")
-                return None, 0
-        
-        # calc area in sqkm
-        # first convert to a projected CRS suitable for Ukraine
-        # UTM zone 36N is good for Ukraine
-        proj = pyproj.Transformer.from_crs(
-            'EPSG:4326',  # WGS84
-            'EPSG:32636',  # UTM zone 36N
-            always_xy=True
-        )
-        
-        # apply the projection to the polygon
-        projected_polygon = transform(proj.transform, territory_polygon)
-        
-        # calc area in sqm, then convert to sqkm
-        area_sq_km = projected_polygon.area / 1e6
-        
-        return territory_polygon, area_sq_km
-    except Exception as e:
-        print(f"Error creating polygon: {e}")
-        return None, 0
-
 def visualise_frontline_with_territory(frontline_coords, combat_events, territory_polygon, 
                                       area_sq_km, date, border_coords=None):
     """
@@ -530,114 +391,114 @@ def visualise_frontline_with_territory(frontline_coords, combat_events, territor
     ))
     
     # save visualisation
-    filename = f"{output}/Frontline_with_Territory_{date.strftime('%Y_%m_%d')}.html"
+    filename = f"{output}/Frontline_with_Territory_{date.strftime('%Y_%m_%d')}_TESTING.html"
     fig.write_html(filename)
     print(f"Saved visualisation to {filename}")
     
     return fig
 
-def analyse_territorial_changes_over_time(df, start_date='2022-02-01', end_date='2023-12-31', interval=1, border_coords=None, eastern_border_lon=40.5):
-    "Returns dictionary of {date: {'frontline': coords, 'area': area_sq_km, 'polygon': territory_polygon}}"
+def analyse_territorial_changes_over_time(df, start_date='2022-02-01', end_date='2023-12-31', interval=1, border_coords=None):
+    """
+    Returns dictionary of {date: {'frontline': coords, 'area': area_sq_km, 'polygon': territory_polygon}}
+    Processes data weekly instead of monthly.
+    """
+    print("Analysing territorial changes over time (weekly)")
 
-    print("Analysing territorial changes over time")
-    
-    # convert to datetime and filter to range
+    # Convert to datetime and filter to range
     df['date'] = pd.to_datetime(df['date'])
     date_range_df = df[(df['date'] >= start_date) & (df['date'] <= end_date)].copy()
-    date_range_df['month_year'] = date_range_df['date'].dt.strftime('%Y-%m')
-    
-    # get unique months in range
-    months = sorted(date_range_df['month_year'].unique())
-    selected_months = months[::interval]
-    
+
+    # Group by week
+    date_range_df['week_start'] = date_range_df['date'].dt.to_period('W').apply(lambda r: r.start_time)
+    weeks = sorted(date_range_df['week_start'].unique())
+    selected_weeks = weeks[::interval]  # Apply interval if needed
+
     results = {}
-    
-    for month in selected_months:
-        # get last day of month
-        month_data = date_range_df[date_range_df['month_year'] == month]
-        last_date = month_data['date'].max()
-        
-        print(f"Processing {month}, end date: {last_date}")
-        
-        # generate frontline
+
+    for week_start in selected_weeks:
+        # Get the last day of the week
+        week_data = date_range_df[date_range_df['week_start'] == week_start]
+        last_date = week_data['date'].max()
+
+        print(f"Processing week starting {week_start}, end date: {last_date}")
+
+        # Generate frontline
         try:
             frontline_coords, combat_events = detect_stable_frontline(
-                df, 
-                last_date, 
+                df,
+                last_date,
                 window=60,
                 eps_values=[0.08, 0.12, 0.16],
                 min_samples_values=[3, 5, 7]
             )
-            
+
             if frontline_coords is None or combat_events is None:
-                print(f"Skipping {month} - couldn't generate frontline")
+                print(f"Skipping week {week_start} - couldn't generate frontline")
                 continue
-            
-            # create territory polygon and calculate area
+
+            # Create territory polygon and calculate area
             territory_polygon, area_sq_km = create_territory_polygon(
-                frontline_coords, 
-                border_coords,
-                eastern_border_lon
+                frontline_coords
             )
-            
+
             if territory_polygon is None:
-                print(f"Skipping {month} - couldn't create territory polygon")
+                print(f"Skipping week {week_start} - couldn't create territory polygon")
                 continue
-            
-            # visualise frontline and territory
+
+            # Visualise frontline and territory
             fig = visualise_frontline_with_territory(
-                frontline_coords, 
-                combat_events, 
-                territory_polygon, 
-                area_sq_km, 
-                last_date, 
+                frontline_coords,
+                combat_events,
+                territory_polygon,
+                area_sq_km,
+                last_date,
                 border_coords
             )
-            
-            # store results
-            results[month] = {
+
+            # Store results
+            results[week_start] = {
                 'date': last_date,
                 'frontline': frontline_coords,
                 'area': area_sq_km,
                 'polygon': territory_polygon
             }
-            
+
         except Exception as e:
-            print(f"Error processing {month}: {e}")
+            print(f"Error processing week {week_start}: {e}")
             continue
-    
-    # create a summary visualsation of territorial changes
+
+    # Create a summary visualisation of territorial changes
     if results:
-        # create a line chart of area changes
-        months = list(results.keys())
-        areas = [results[month]['area'] for month in months]
-        
+        # Create a line chart of area changes
+        weeks = list(results.keys())
+        areas = [results[week]['area'] for week in weeks]
+
         fig = go.Figure()
         fig.add_trace(go.Scatter(
-            x=months,
+            x=weeks,
             y=areas,
             mode='lines+markers',
             name='Occupied Territory (km²)'
         ))
-        
+
         fig.update_layout(
-            title='Occupied Territory in Ukraine Over Time',
-            xaxis_title='Month',
+            title='Occupied Territory in Ukraine Over Time (Weekly)',
+            xaxis_title='Week',
             yaxis_title='Area (square kilometers)',
             height=600,
             width=1000
         )
-        
-        fig.write_html(f'{output}/Territorial_Changes_Summary.html')
-        print("Saved territorial changes summary to Territorial_Changes_Summary.html")
-    
+
+        fig.write_html(f'{output}/Territorial_Changes_Summary_Weekly.html')
+        print("Saved territorial changes summary to Territorial_Changes_Summary_Weekly.html")
+
     return results
 
 if __name__ == "__main__":
     print('Loading combined data')
     df = pd.read_csv('data/combined_events.csv')
     # convert dates to DD-MM-YY
-    df['date'] = pd.to_datetime(df['date'], dayfirst=True)
+    df['date'] = pd.to_datetime(df['date'])
     
     try:
         with open('data/border.json', 'r') as file:
@@ -660,9 +521,7 @@ if __name__ == "__main__":
     
     if frontline_coords is not None:
         territory_polygon, area_sq_km = create_territory_polygon(
-            frontline_coords, 
-            border_coords,
-            eastern_border_lon
+            frontline_coords
         )
         
         if territory_polygon is not None:
@@ -678,14 +537,13 @@ if __name__ == "__main__":
     
     results = analyse_territorial_changes_over_time(
         df,
-        start_date='2022-01-01', 
-        end_date='2024-12-31', 
+        start_date='2022-02-01', 
+        end_date='2025-09-30', 
         interval=1,
-        border_coords=border_coords,
-        eastern_border_lon=eastern_border_lon
+        border_coords=border_coords
     )
 
-months = []
+weeks = []
 dates = []
 areas = []
 percentages = []
@@ -693,22 +551,22 @@ percentages = []
 # Ukraine's total area in sqkm
 ukraine_area = 603550
 
-for month, data in results.items():
+for week, data in results.items():
     try:
         date = data['date']
         area = data['area']
         
         percent = (area / ukraine_area) * 100
         
-        months.append(month)
+        weeks.append(week)
         dates.append(date)
         areas.append(area)
         percentages.append(percent)
     except (KeyError, TypeError) as e:
-        print(f"Error processing month {month}: {e}")
+        print(f"Error processing week {week}: {e}")
 
 df = pd.DataFrame({
-    'month_year': months,
+    'week_start': weeks,
     'date': dates,
     'area_sq_km': areas,
     'percent_of_ukraine': percentages
@@ -716,6 +574,21 @@ df = pd.DataFrame({
 
 df = df.sort_values('date')
 
-# save to CSV
-df.to_csv(f'{output}/frontline_area_output.csv', index=False)
-print(f"Saved territorial results to csv")
+# Save to CSV
+df.to_csv('data/frontline_area_output_weekly.csv', index=False)
+print(f"Saved weekly territorial results to CSV")
+
+import matplotlib.pyplot as plt
+
+# Create a line graph of weekly territory changes
+plt.figure(figsize=(12, 6))
+plt.plot(df['week_start'], df['area_sq_km'], marker='o', label='Occupied Territory (km²)')
+plt.title('Occupied Territory in Ukraine Over Time (Weekly)')
+plt.xlabel('Week')
+plt.ylabel('Area (square kilometers)')
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.legend()
+
+# Show the graph
+plt.show()

@@ -18,6 +18,35 @@ def get_border_coords():
         border_coords = None
     return border_coords
 
+def process_nn_frontline(nn_points, date):
+    """
+    Process neural network frontline data to extract and flatten coordinates.
+    Parameters:
+    - nn_data: Dictionary containing neural network output with dates as keys.
+    - date: The specific date to extract frontline coordinates for.
+    Returns:
+    - List of [lon, lat] coordinates for the specified date.
+    """
+    if date not in nn_points:
+        print(f'No frontline coords available for {date}')
+        return None
+
+    data = nn_points[date]
+    coords = []
+    for segment in data:
+        for point in segment:
+            if len(point) < 2:
+                print(f"Invalid point {point}, skipping")
+                continue
+            coords.append((point[0], point[1]))  # [lon, lat]
+
+    if not coords:
+        print(f"No valid coordinates found for date {date}")
+        return None
+    return np.array(coords)
+
+    
+
 def create_territory_polygon(frontline_coords, eastern_border_lon=40.5):
     """
     Create a polygon representing the territory between the frontline and eastern border.
@@ -158,3 +187,55 @@ def create_territory_polygon(frontline_coords, eastern_border_lon=40.5):
     except Exception as e:
         print(f"Error creating polygon: {e}")
         return None, 0
+    
+import matplotlib.pyplot as plt
+
+def plot_territory_polygon(polygon, title="Territory Polygon"):
+    """
+    Plot the territory polygon or multipolygon using matplotlib.
+    Parameters:
+    - polygon: Shapely Polygon or MultiPolygon object to plot.
+    - title: Title of the plot.
+    """
+    if polygon is None:
+        print("No polygon to plot")
+        return
+
+    plt.figure(figsize=(10, 8))
+
+    if polygon.geom_type == 'Polygon':
+        # Single polygon
+        x, y = polygon.exterior.xy
+        plt.plot(x, y, color='blue', linewidth=2, label='Territory Boundary')
+        plt.fill(x, y, color='lightblue', alpha=0.5, label='Territory Area')
+    elif polygon.geom_type == 'MultiPolygon':
+        # MultiPolygon: iterate through individual polygons
+        for poly in polygon.geoms:
+            x, y = poly.exterior.xy
+            plt.plot(x, y, color='blue', linewidth=2)
+            plt.fill(x, y, color='lightblue', alpha=0.5)
+
+    plt.title(title)
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+if __name__ == "__main__":
+    # Example usage
+    with open('data/nn_frontline_data.json', 'r') as file:
+        nn_coords = json.load(file)
+    
+    date = "2023-04-17"
+
+    frontline_coords = process_nn_frontline(nn_coords, date)
+    if frontline_coords is not None:
+        territory_polygon, area_sq_km = create_territory_polygon(frontline_coords)
+        if territory_polygon is not None:
+            print(f"Territory polygon created with area: {area_sq_km} sqkm")
+            plot_territory_polygon(territory_polygon, title=f"NN Territory Polygon for {date}")
+        else:
+            print("Failed to create territory polygon")
+    else:
+        print("No frontline coordinates available")
