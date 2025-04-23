@@ -21,6 +21,17 @@ MAX_DISPLACEMENT = 20000  # 20km maximum
 DISPLACEMENT_DECAY = 0.7  # 30% weekly decay of displacement effects
 
 
+eastern_front_polygon = Polygon([
+    (30.5, 50.5),  # NW of Kharkiv
+    (38.0, 50.5),  # NE near Russia border
+    (39.0, 46.5),  # SE coast above Mariupol
+    (35.5, 45.0),  # Crimea edge
+    (31.5, 46.5),  # Near Mykolaiv
+    (30.5, 48.0),  # Back up to Dnipro
+    (30.5, 50.5)   # Close the loop
+])
+
+
 def download_ukraine_border():
     """Download Ukraine border shapefile if not already present"""
     url = "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_UKR_shp.zip"
@@ -35,6 +46,15 @@ def download_ukraine_border():
         os.remove(local_zip)
     return gpd.read_file("gadm_ukraine/gadm41_UKR_0.shp")
 
+
+
+def extract_major_frontline(history, region_poly=eastern_front_polygon):
+    filtered_history = []
+    for df in history:
+        mask = [region_poly.contains(Point(lon, lat)) for lon, lat in zip(df['longitude'], df['latitude'])]
+        filtered_df = df[mask].copy()
+        filtered_history.append(filtered_df)
+    return filtered_history
 
 def generate_precise_border_nodes(ukraine_border, num_nodes=5000):
     """Generate evenly spaced points along the border"""
@@ -334,19 +354,23 @@ if __name__ == '__main__':
     # Compute frontline evolution
     frontline_history = compute_weekly_frontline(acled, border_nodes, ukraine_poly)
 
+    # Extract only the eastern active frontline
+    major_frontline_history = extract_major_frontline(frontline_history)
+
+    # Optionally re-plot and/or export
+    plot_frontline_with_controls(major_frontline_history, acled)
+
     # Visualize
     plot_frontline_with_controls(frontline_history, acled)
 
+
     # Create a list of rows where each row is (week, [[lat1, lon1], [lat2, lon2], ..., [latN, lonN]])
+    # Save structured CSV of major frontline only
     rows = []
-    for df in frontline_history:
+    for df in major_frontline_history:
         week = df['week'].iloc[0].date()
-        latlons = df[['latitude', 'longitude']].values.tolist()  # List of [lat, lon]
+        latlons = df[['latitude', 'longitude']].values.tolist()
         rows.append({'week': week, 'nodes': latlons})
 
-    # Convert to DataFrame
-    structured_df = pd.DataFrame(rows)
-
-    # Save to CSV, converting lists to strings for CSV compatibility
-    structured_df.to_csv('weekly_frontline_structured_nodes.csv', index=False)
-    print("Saved structured weekly frontline nodes to 'weekly_frontline_structured_nodes.csv'")
+    pd.DataFrame(rows).to_csv('major_eastern_frontline_nodes.csv', index=False)
+    print("Saved major eastern frontline to 'major_eastern_frontline_nodes.csv'")
