@@ -80,7 +80,7 @@ def load_acled_data(csv_path='ACLED_Ukraine_Reduced.csv'):
     # Calculate weights
     current_date = acled['event_date'].max()
     acled['age_weeks'] = (current_date - acled['event_date']).dt.days / 7
-    acled['weight'] = np.exp(-0.01 * acled['age_weeks'])  # Slower decay
+    acled['weight'] = np.exp(-0.5 * acled['age_weeks'])  # Slower decay
 
     acled['week'] = acled['event_date'].dt.to_period('W').apply(lambda r: r.start_time)
     return acled
@@ -372,5 +372,5 @@ if __name__ == '__main__':
         latlons = df[['latitude', 'longitude']].values.tolist()
         rows.append({'week': week, 'nodes': latlons})
 
-    pd.DataFrame(rows).to_csv('major_eastern_frontline_nodes.csv', index=False)
-    print("Saved major eastern frontline to 'major_eastern_frontline_nodes.csv'")
+    pd.DataFrame(rows).to_csv('../frontline_result/L_final_east_border_nodes.csv', index=False)
+    print("Saved major eastern frontline to 'L_final_east_border_nodes.csv'")
