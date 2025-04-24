@@ -3,6 +3,10 @@ from shapely.geometry import LineString, Point, MultiPoint, Polygon, mapping
 import pyproj
 from shapely.ops import transform
 import json
+import pandas as pd
+import ast
+
+ukraine_area = 603550
 
 def get_border_coords():
     try:
@@ -222,20 +226,102 @@ def plot_territory_polygon(polygon, title="Territory Polygon"):
     plt.grid(True)
     plt.show()
 
-if __name__ == "__main__":
-    # Example usage
+def create_NN_frontline_area_csv():
     with open('data/nn_frontline_data.json', 'r') as file:
         nn_coords = json.load(file)
     
-    date = "2023-04-17"
+    results = {}
+    for date in nn_coords.keys():
+        print(f"Processing week starting: {date}")
 
-    frontline_coords = process_nn_frontline(nn_coords, date)
-    if frontline_coords is not None:
-        territory_polygon, area_sq_km = create_territory_polygon(frontline_coords)
-        if territory_polygon is not None:
-            print(f"Territory polygon created with area: {area_sq_km} sqkm")
-            plot_territory_polygon(territory_polygon, title=f"NN Territory Polygon for {date}")
+        frontline_coords = process_nn_frontline(nn_coords, date)
+        if frontline_coords is not None:
+            territory_polygon, area_sq_km = create_territory_polygon(frontline_coords)
+            if territory_polygon is not None:
+                print(f"Territory polygon created with area: {area_sq_km} sqkm")
+                percentage = (area_sq_km / ukraine_area) * 100
+                plot_territory_polygon(territory_polygon, title=f"NN Territory Polygon for {date}")
+                results[date] = {
+                    'area_sq_km': area_sq_km,
+                    'percent_of_ukraine': percentage,
+                }
+            else:
+                print("Failed to create territory polygon")
         else:
-            print("Failed to create territory polygon")
-    else:
-        print("No frontline coordinates available")
+            print("No frontline coordinates available")
+
+    weeks = []
+    areas = []
+    percentages = []
+
+    for date, result in results.items():
+        print(f"Date: {date}, Area: {result['area_sq_km']} sqkm, Percentage of Ukraine: {result['percent_of_ukraine']:.2f}%")
+        weeks.append(date)
+        areas.append(result['area_sq_km'])
+        percentages.append(result['percent_of_ukraine'])
+
+    df = pd.DataFrame({
+        'week_start': weeks,
+        'area_sq_km': areas,
+        'percent_of_ukraine': percentages
+    })
+    df = df.sort_values(by='week_start')
+    df.to_csv('data/NN_frontline_area_output_weekly.csv', index=False)
+    print(f"Saved weekly territorial results to CSV")
+
+def create_WD_frontline_area_csv():
+    df = pd.read_csv('data/major_eastern_frontline_nodes.csv')
+    
+    results = {}
+    
+    for _, row in df.iterrows():
+        week = row['week']
+        try:
+            # Parse the nodes column
+            nodes = ast.literal_eval(row['nodes'])
+
+            if not isinstance(nodes, list) or len(nodes) < 3:
+                print(f"Invalid nodes for week {week}, skipping")
+                continue
+
+            # Swap lat, lon to lon, lat
+            coords = np.array([[point[1], point[0]] for point in nodes])
+
+            # Create territory polygon and calculate area
+            territory_polygon, area_sq_km = create_territory_polygon(coords)
+            if territory_polygon is not None:
+                percentage = (area_sq_km / ukraine_area) * 100
+                plot_territory_polygon(territory_polygon, title=f"WD Territory Polygon for {week}")
+                results[week] = {
+                    'area_sq_km': area_sq_km,
+                    'percent_of_ukraine': percentage,
+                }
+                print(f'Week {week}: Area: {area_sq_km} sqkm, Percentage of Ukraine: {percentage:.2f}%')
+            else:
+                print(f"Failed to create territory polygon for week {week}")
+        except Exception as e:
+            print(f"Error processing nodes for week {week}: {e}")
+            continue
+
+    # Prepare results for CSV
+    weeks = []
+    areas = []
+    percentages = []
+
+    for week, result in results.items():
+        print(f"Week: {week}, Area: {result['area_sq_km']} sqkm, Percentage of Ukraine: {result['percent_of_ukraine']:.2f}%")
+        weeks.append(week)
+        areas.append(result['area_sq_km'])
+        percentages.append(result['percent_of_ukraine'])
+
+    # Save results to CSV
+    df_output = pd.DataFrame({
+        'week_start': weeks,
+        'area_sq_km': areas,
+        'percent_of_ukraine': percentages
+    })
+    df_output = df_output.sort_values(by='week_start')
+    df_output.to_csv('data/WD_frontline_area_output_weekly.csv', index=False)
+    print(f"Saved weekly territorial results to CSV")
+
+create_WD_frontline_area_csv()
