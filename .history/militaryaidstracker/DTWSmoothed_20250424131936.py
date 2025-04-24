@@ -28,7 +28,7 @@ frontline_df = frontline_df.rename(columns={"date": "announcement_date"})
 
 merged_df = pd.merge(aid_df, frontline_df, on="announcement_date", how="inner")
 
-selected_aid = "Military equipment"
+selected_aid = "Total aid"
 
 scaler = MinMaxScaler()
 normalized = scaler.fit_transform(merged_df[[selected_aid, "area_sq_km"]].fillna(0))

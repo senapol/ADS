@@ -10,7 +10,10 @@ from scipy.signal import correlate
 # from militaryaidstracker.correlation_aid_frontline import merged_df
 
 aid_df = pd.read_csv("data/cleaned/smoothed_aid_weekly.csv")
-frontline_df = pd.read_csv("data/frontline_area_output.csv").head(36)
+frontline_df = pd.read_csv("data/WD_frontline_area_output_weekly.csv").head(36)
+frontline_df = frontline_df.groupby(pd.Grouper(key='date', freq='M')).agg({
+    'area_in_square_km': 'mean'
+}).reset_index()
 frontline_df["area_sq_km"] = -frontline_df["area_sq_km"]
 
 categories = ['Humanitarian', 'Military equipment', 'Aviation and drones', 
@@ -28,7 +31,7 @@ frontline_df = frontline_df.rename(columns={"date": "announcement_date"})
 
 merged_df = pd.merge(aid_df, frontline_df, on="announcement_date", how="inner")
 
-selected_aid = "Military equipment"
+selected_aid = "Total aid"
 
 scaler = MinMaxScaler()
 normalized = scaler.fit_transform(merged_df[[selected_aid, "area_sq_km"]].fillna(0))

@@ -10,8 +10,13 @@ from scipy.signal import correlate
 # from militaryaidstracker.correlation_aid_frontline import merged_df
 
 aid_df = pd.read_csv("data/cleaned/smoothed_aid_weekly.csv")
-frontline_df = pd.read_csv("data/frontline_area_output.csv").head(36)
+frontline_df = pd.read_csv("data/WD_frontline_area_output_weekly.csv")
+frontline_df["date"] = pd.to_datetime(frontline_df["date"])
+frontline_df = frontline_df.groupby(pd.Grouper(key='date', freq='M')).agg({
+    'area_sq_km': 'mean'
+}).reset_index()
 frontline_df["area_sq_km"] = -frontline_df["area_sq_km"]
+print(frontline_df.count())
 
 categories = ['Humanitarian', 'Military equipment', 'Aviation and drones', 
               'Portable defence system', 'Heavy weapon', 'Financial', 'Uncategorised']
@@ -28,7 +33,7 @@ frontline_df = frontline_df.rename(columns={"date": "announcement_date"})
 
 merged_df = pd.merge(aid_df, frontline_df, on="announcement_date", how="inner")
 
-selected_aid = "Military equipment"
+selected_aid = "Humanitarian"
 
 scaler = MinMaxScaler()
 normalized = scaler.fit_transform(merged_df[[selected_aid, "area_sq_km"]].fillna(0))
@@ -38,11 +43,6 @@ dates = merged_df["announcement_date"].dt.strftime("%Y-%m-%d")
 
 # aid_series  = merged_df[selected_aid]   / merged_df[selected_aid].max()
 # move_series = -(merged_df["area_sq_km"] / merged_df["area_sq_km"].min()) + 1
-
-alignment = dtw.warping_path(aid_series, move_series, window=7)
-dist = dtw.distance(    aid_series, move_series, window=7)
-
-print(dist/len(alignment))
 
 results = []
 for cat in categories + ['Total aid']:

@@ -44,50 +44,50 @@ dist = dtw.distance(    aid_series, move_series, window=7)
 
 print(dist/len(alignment))
 
-results = []
-for cat in categories + ['Total aid']:
-    scaler = MinMaxScaler()
-    normalized = scaler.fit_transform(merged_df[[cat, "area_sq_km"]].fillna(0))
-    aid_series = normalized[:, 0]
-    move_series = normalized[:, 1]
-    dates = merged_df["announcement_date"].dt.strftime("%Y-%m-%d")
+# results = []
+# for cat in categories + ['Total aid']:
+#     scaler = MinMaxScaler()
+#     normalized = scaler.fit_transform(merged_df[[cat, "area_sq_km"]].fillna(0))
+#     aid_series = normalized[:, 0]
+#     move_series = normalized[:, 1]
+#     dates = merged_df["announcement_date"].dt.strftime("%Y-%m-%d")
 
-    # 2. compute DTW distance (not the full path)
-    dist = dtw.distance(aid_series, move_series, window=7)
+#     # 2. compute DTW distance (not the full path)
+#     dist = dtw.distance(aid_series, move_series, window=7)
 
-    aid_series = aid_series - aid_series.mean()
-    move_series = move_series - move_series.mean()
-    N  = len(aid_series)
+#     aid_series = aid_series - aid_series.mean()
+#     move_series = move_series - move_series.mean()
+#     N  = len(aid_series)
 
-    # full cross‐correlation
-    corr_full = correlate(aid_series, move_series, mode="full")
+#     # full cross‐correlation
+#     corr_full = correlate(aid_series, move_series, mode="full")
 
-    # build the lags array for mode="full"
-    lags_full = np.arange(-N+1, N)
+#     # build the lags array for mode="full"
+#     lags_full = np.arange(-N+1, N)
 
-    # pick only lags between -5 and +5
-    mask = (lags_full >= -6) & (lags_full <= +6)
-    corr_small = corr_full[mask]
-    lags_small = lags_full[mask]
+#     # pick only lags between -5 and +5
+#     mask = (lags_full >= -6) & (lags_full <= +6)
+#     corr_small = corr_full[mask]
+#     lags_small = lags_full[mask]
 
-    # find the best among those
-    best_idx    = np.argmax(corr_small)
-    best_lag     = lags_small[best_idx]
-    best_corrval = corr_small[best_idx] / (np.std(aid_series)*np.std(move_series)*N)
+#     # find the best among those
+#     best_idx    = np.argmax(corr_small)
+#     best_lag     = lags_small[best_idx]
+#     best_corrval = corr_small[best_idx] / (np.std(aid_series)*np.std(move_series)*N)
 
-    print(cat)
-    print(f"Peak corr within ±5 at lag={best_lag}, r≈{best_corrval:.2f}")
+#     print(cat)
+#     print(f"Peak corr within ±5 at lag={best_lag}, r≈{best_corrval:.2f}")
 
-    # 3. record it
-    results.append({
-        "category": cat,
-        "dtw_distance": dist
-    })
+#     # 3. record it
+#     results.append({
+#         "category": cat,
+#         "dtw_distance": dist
+#     })
 
-# 4. build a DataFrame and save
-df_dist = pd.DataFrame(results).sort_values("dtw_distance")
-df_dist.to_csv("dtw_distances_per_category.csv", index=False)
-print(df_dist)
+# # 4. build a DataFrame and save
+# df_dist = pd.DataFrame(results).sort_values("dtw_distance")
+# df_dist.to_csv("dtw_distances_per_category.csv", index=False)
+# print(df_dist)
 
 seen = set()
 filtered_alignment = []
