@@ -4,7 +4,7 @@ from datetime import datetime
 
 # df = pd.read_csv("data/cleaned/aid_categories_monthly.csv")
 df = pd.read_csv("data/cleaned/smoothed_aid_weekly.csv")
-# df['announcement_date'] = pd.to_datetime(df['announcement_date'])
+df['announcement_date'] = pd.to_datetime(df['announcement_date'])
 
 # Categories to plot
 categories = ['Humanitarian', 'Military equipment', 'Aviation and drones', 
@@ -40,13 +40,13 @@ plt.grid(True, alpha=0.3)
 plt.xticks(rotation=45)
 
 # Use logarithmic scale for y-axis to better handle large variations and zeros
-# plt.yscale('symlog')
-# plt.ylim(-10**1, 10**2)
+plt.yscale('symlog')
+plt.ylim(-10**1, 10**5)
 
 # Adjust layout to prevent label cutoff
 plt.tight_layout()
 
 # Save the figure as a PNG file with a dpi of 300
-# plt.savefig("portable_in_billions_graph.png", dpi=300)
+# plt.savefig("total_aid_graph.png", dpi=300)
 
 plt.show()

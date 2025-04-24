@@ -3,14 +3,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # df = pd.read_csv("data/cleaned/aid_categories_monthly.csv")
-df = pd.read_csv("data/cleaned/smoothed_aid_weekly.csv")
+df = pd.read_csv("data/frontline_area_output.csv")
 # df['announcement_date'] = pd.to_datetime(df['announcement_date'])
-
-# Categories to plot
-categories = ['Humanitarian', 'Military equipment', 'Aviation and drones', 
-              'Portable defence system', 'Heavy weapon', 'Financial', 'Uncategorised']
-
-df.loc[:, 'Total aid'] = df[categories].sum(axis=1)
 
 # Create the plot
 plt.figure(figsize=(14, 6))
@@ -23,7 +17,7 @@ plt.figure(figsize=(14, 6))
 #                 linewidth=2,
 #                 markersize=8)
 
-plt.plot(df['announcement_date'], df["Portable defence system"]/1000000, 
+plt.plot(df['date'], df["percent_of_ukraine"], 
             marker='o', 
             label="Total Aid",
             linewidth=2,
@@ -40,13 +34,13 @@ plt.grid(True, alpha=0.3)
 plt.xticks(rotation=45)
 
 # Use logarithmic scale for y-axis to better handle large variations and zeros
-# plt.yscale('symlog')
-# plt.ylim(-10**1, 10**2)
+plt.yscale('symlog')
+plt.ylim(-10**1, 10**5)
 
 # Adjust layout to prevent label cutoff
 plt.tight_layout()
 
 # Save the figure as a PNG file with a dpi of 300
-# plt.savefig("portable_in_billions_graph.png", dpi=300)
+# plt.savefig("total_aid_graph.png", dpi=300)
 
 plt.show()

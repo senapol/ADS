@@ -23,7 +23,7 @@ plt.figure(figsize=(14, 6))
 #                 linewidth=2,
 #                 markersize=8)
 
-plt.plot(df['announcement_date'], df["Portable defence system"]/1000000, 
+plt.plot(df['announcement_date'], df["Portable defence system"]/10000000, 
             marker='o', 
             label="Total Aid",
             linewidth=2,

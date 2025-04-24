@@ -40,13 +40,13 @@ plt.grid(True, alpha=0.3)
 plt.xticks(rotation=45)
 
 # Use logarithmic scale for y-axis to better handle large variations and zeros
-# plt.yscale('symlog')
-# plt.ylim(-10**1, 10**2)
+plt.yscale('symlog')
+plt.ylim(-10**1, 10**2)
 
 # Adjust layout to prevent label cutoff
 plt.tight_layout()
 
 # Save the figure as a PNG file with a dpi of 300
-# plt.savefig("portable_in_billions_graph.png", dpi=300)
+# plt.savefig("total_aid_graph.png", dpi=300)
 
 plt.show()

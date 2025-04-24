@@ -265,27 +265,17 @@ weekly = (
     .resample('W-MON')   # create a row for every week (weeks ending Monday)
     .sum()               # sum all aid values that fall into each week
     .fillna(0)           # give you explicit 0’s for weeks with no announcements
-    .reset_index()
 )
 
-aid_columns = ['Humanitarian', 'Military equipment', 'Aviation and drones', 
-              'Portable defence system', 'Heavy weapon', 'Financial', 'Uncategorised']
-
-smoothed = df[aid_columns].rolling(
+smoothed = weekly.rolling(
     window=5,          # 2 weeks before + current week + 2 weeks after
     win_type='gaussian',
     center=True,
     min_periods=1       # so edges still get a value
-).mean(std=1)
+).mean(std=2)
 
-smoothed["announcement_date"] = df["announcement_date"]
-print(smoothed["announcement_date"].tail(5))
-print(smoothed.count())
-
-smoothed_aid_path = "data/cleaned/smoothed_aid_weekly.csv"
 # Save the cleaned datasets as new files
-# cleaned_aid_path = "data/cleaned/aid_categories_monthly.csv"
+cleaned_aid_path = "data/cleaned/aid_categories_monthly.csv"
 # cleaned_aid_path = "data/cleaned/aid_categories_weekly.csv"
 
-# df.to_csv(cleaned_aid_path, index=False)
-smoothed.to_csv(smoothed_aid_path, index=False)
+df.to_csv(cleaned_aid_path, index=False)

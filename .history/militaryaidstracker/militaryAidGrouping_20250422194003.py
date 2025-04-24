@@ -248,7 +248,7 @@ cols_to_sum = aid_categories
 # group = grouped.get_group(target_date)
 # print(group)
 
-df = df.groupby([pd.Grouper(key='announcement_date', freq='M')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
+df = df.groupby([pd.Grouper(key='announcement_date', freq='W')])[cols_to_sum + ['Uncategorised']].sum().reset_index() # .sum().reset_index()
 
 # 1. Define your list of columns to sum
 # print(df[cols_to_sum].dtypes)
@@ -271,16 +271,14 @@ weekly = (
 aid_columns = ['Humanitarian', 'Military equipment', 'Aviation and drones', 
               'Portable defence system', 'Heavy weapon', 'Financial', 'Uncategorised']
 
-smoothed = df[aid_columns].rolling(
+smoothed = weekly[aid_columns].rolling(
     window=5,          # 2 weeks before + current week + 2 weeks after
     win_type='gaussian',
     center=True,
     min_periods=1       # so edges still get a value
-).mean(std=1)
+).mean(std=2)
 
-smoothed["announcement_date"] = df["announcement_date"]
-print(smoothed["announcement_date"].tail(5))
-print(smoothed.count())
+smoothed["announcement_date"] = weekly.index
 
 smoothed_aid_path = "data/cleaned/smoothed_aid_weekly.csv"
 # Save the cleaned datasets as new files

@@ -23,7 +23,7 @@ plt.figure(figsize=(14, 6))
 #                 linewidth=2,
 #                 markersize=8)
 
-plt.plot(df['announcement_date'], df["Portable defence system"]/1000000, 
+plt.plot(df['announcement_date'], df["Portable defence system"]/100000000, 
             marker='o', 
             label="Total Aid",
             linewidth=2,
@@ -40,8 +40,8 @@ plt.grid(True, alpha=0.3)
 plt.xticks(rotation=45)
 
 # Use logarithmic scale for y-axis to better handle large variations and zeros
-# plt.yscale('symlog')
-# plt.ylim(-10**1, 10**2)
+plt.yscale('symlog')
+plt.ylim(-10**1, 10**2)
 
 # Adjust layout to prevent label cutoff
 plt.tight_layout()

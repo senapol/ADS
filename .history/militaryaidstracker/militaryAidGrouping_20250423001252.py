@@ -276,7 +276,7 @@ smoothed = df[aid_columns].rolling(
     win_type='gaussian',
     center=True,
     min_periods=1       # so edges still get a value
-).mean(std=1)
+).mean(std=2)
 
 smoothed["announcement_date"] = df["announcement_date"]
 print(smoothed["announcement_date"].tail(5))

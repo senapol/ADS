@@ -279,8 +279,6 @@ smoothed = df[aid_columns].rolling(
 ).mean(std=1)
 
 smoothed["announcement_date"] = df["announcement_date"]
-print(smoothed["announcement_date"].tail(5))
-print(smoothed.count())
 
 smoothed_aid_path = "data/cleaned/smoothed_aid_weekly.csv"
 # Save the cleaned datasets as new files

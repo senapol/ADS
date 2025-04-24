@@ -272,7 +272,7 @@ aid_columns = ['Humanitarian', 'Military equipment', 'Aviation and drones',
               'Portable defence system', 'Heavy weapon', 'Financial', 'Uncategorised']
 
 smoothed = df[aid_columns].rolling(
-    window=5,          # 2 weeks before + current week + 2 weeks after
+    window=7,          # 2 weeks before + current week + 2 weeks after
     win_type='gaussian',
     center=True,
     min_periods=1       # so edges still get a value
