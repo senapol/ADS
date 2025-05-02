@@ -18,7 +18,7 @@ from shapely.geometry import Point
 
 # Load event data
 df = pd.read_csv("data/combined_events.csv")
-df["date"] = pd.to_datetime(df["date"], dayfirst=True)
+df["date"] = pd.to_datetime(df["date"])
 
 # Filter only 'Battles' events
 df = df[df["event_type"] == "Battles"].copy()
